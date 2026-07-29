@@ -7,17 +7,17 @@ RUN docker-php-ext-install pdo pdo_mysql mysqli
 RUN a2enmod rewrite
 
 # Copy custom Apache vhost config (DocumentRoot = /var/www/html/public)
-COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY php_app/docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html
 
-# Copy application source
-COPY . .
+# Copy only the PHP application from the subdirectory
+COPY php_app/ /var/www/html/
 
 # Ensure Apache-owned writable directories exist
 RUN mkdir -p storage/logs && chown -R www-data:www-data storage/
 
-COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY php_app/docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80

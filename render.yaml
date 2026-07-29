@@ -2,7 +2,7 @@ services:
   - type: web
     name: devi-fancy-store
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./php_app/Dockerfile
     envVars:
       - key: APP_ENV
         value: production

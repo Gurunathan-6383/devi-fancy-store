@@ -2,9 +2,12 @@
 .gitignore
 .env
 *.md
+server/
 node_modules/
 .vscode/
 .idea/
-storage/logs/*.log
 .DS_Store
 Thumbs.db
+check_*.txt
+database.sql
+php_app/storage/logs/*.log
