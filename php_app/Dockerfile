@@ -1,47 +1,23 @@
 FROM php:8.2-apache
 
-# Install system dependencies and PHP extensions
-RUN apt-get update && apt-get install -y \
-        libpng-dev \
-        libjpeg62-turbo-dev \
-        libfreetype6-dev \
-        libzip-dev \
-        libicu-dev \
-        libonig-dev \
-        unzip \
-        curl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        pdo \
-        pdo_mysql \
-        mysqli \
-        gd \
-        zip \
-        intl \
-        mbstring \
-        opcache \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install PHP extensions required by this project
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-# Enable Apache modules
-RUN a2enmod rewrite headers expires
+# Enable Apache mod_rewrite for clean URLs
+RUN a2enmod rewrite
 
-# Copy Apache vhost config
+# Copy custom Apache vhost config (DocumentRoot = /var/www/html/public)
 COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application source
 COPY . .
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/public/uploads
+# Ensure Apache-owned writable directories exist
+RUN mkdir -p storage/logs && chown -R www-data:www-data storage/
 
-# Copy entrypoint script
-COPY docker/docker-entrypoint.sh /usr/local/bin/
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
