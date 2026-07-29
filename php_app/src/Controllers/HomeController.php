@@ -169,7 +169,7 @@ class HomeController
             echo layout('main', view('pages.404'), ['title' => 'Not Found']);
             return;
         }
-        $reviews = Review::findByProduct($product['id']);
+        $reviews = Review::getByProduct($product['id']);
         $stats = Review::getStats($product['id']);
         $related = [];
         if ($product['category_id']) {

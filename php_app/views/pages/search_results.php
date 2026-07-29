@@ -36,9 +36,6 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
                     <?= view('components.product_card', ['product' => $p, 'dark' => $dark]) ?>
                 <?php endforeach; ?>
             <?php else: ?>
-                <?php for ($i = 0; $i < 8; $i++): ?>
-                    <?= view('components.skeleton', ['type' => 'product_card']) ?>
-                <?php endfor; ?>
                 <?php if ($query): ?>
                 <div class="col-span-full text-center py-16">
                     <p class="text-lg text-gray-500 mb-2">No products found for "<?= htmlspecialchars($query) ?>"</p>

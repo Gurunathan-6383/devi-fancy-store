@@ -1,11 +1,10 @@
 <?php
 $catalogues = $catalogues ?? [];
 $catalogue = $catalogue ?? null;
-$slug = $slug ?? null;
 $dark = $dark ?? false;
 $baseUrl = rtrim(env('APP_URL', ''), '/');
 ?>
-<?php if ($slug && $catalogue): ?>
+<?php if ($catalogue): ?>
 <div class="py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <a href="<?= $baseUrl ?>/catalogues" class="text-primary-600 hover:text-primary-700 font-medium mb-4 inline-block">&larr; Back to Catalogues</a>

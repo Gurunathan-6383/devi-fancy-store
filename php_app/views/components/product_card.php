@@ -33,10 +33,25 @@ $slug = $product['slug'] ?? '';
         <?php endif; ?>
 
         <div class="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0 z-10">
-            <button onclick="event.preventDefault(); toggleWishlist(<?= $product['id'] ?? 0 ?>)" class="w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 <?= $wishlisted ? 'bg-red-500 text-white' : 'bg-white/90 hover:bg-white text-gray-600 hover:text-red-500' ?>">
+            <button
+                onclick="event.preventDefault(); handleProductWishlist(<?= $product['id'] ?? 0 ?>)"
+                class="w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 <?= $wishlisted ? 'bg-red-500 text-white' : 'bg-white/90 hover:bg-white text-gray-600 hover:text-red-500' ?>"
+            >
                 <svg class="w-4 h-4 <?= $wishlisted ? 'fill-white' : '' ?>" fill="<?= $wishlisted ? 'currentColor' : 'none' ?>" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
             </button>
-            <button onclick="event.preventDefault(); addToCart(<?= $product['id'] ?? 0 ?>)" <?= (($product['stock'] ?? 0) <= 0) ? 'disabled' : '' ?> class="w-9 h-9 bg-primary-500 hover:bg-primary-600 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/30 transition-all hover:scale-110 disabled:opacity-50">
+            <button
+                onclick="event.preventDefault(); handleProductAddToCart(<?= htmlspecialchars(json_encode([
+                    'id' => $product['id'] ?? 0,
+                    'name' => $product['name'] ?? '',
+                    'price' => $product['price'] ?? 0,
+                    'offer_price' => $product['offer_price'] ?? null,
+                    'image' => $firstImage,
+                    'slug' => $slug,
+                    'stock' => $product['stock'] ?? 0,
+                ])) ?>)"
+                <?= (($product['stock'] ?? 0) <= 0) ? 'disabled' : '' ?>
+                class="w-9 h-9 bg-primary-500 hover:bg-primary-600 rounded-full flex items-center justify-center shadow-lg shadow-primary-500/30 transition-all hover:scale-110 disabled:opacity-50"
+            >
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
             </button>
         </div>
@@ -72,3 +87,48 @@ $slug = $product['slug'] ?? '';
         <?php endif; ?>
     </div>
 </a>
+
+<script>
+function handleProductAddToCart(product) {
+    var token = localStorage.getItem('customerToken');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    if (product.stock <= 0) {
+        if (typeof showToast === 'function') showToast('Out of stock', 'error');
+        return;
+    }
+    if (typeof addToCart === 'function') {
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            offer_price: product.offer_price,
+            image: product.image,
+            slug: product.slug,
+            quantity: 1
+        });
+        if (typeof showToast === 'function') showToast('Added to cart!');
+        setTimeout(function() { location.reload(); }, 500);
+    }
+}
+
+function handleProductWishlist(productId) {
+    var token = localStorage.getItem('customerToken');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    if (typeof toggleWishlist === 'function') {
+        toggleWishlist(productId).then(function(action) {
+            if (action) {
+                if (typeof showToast === 'function') {
+                    showToast(action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist!');
+                }
+                setTimeout(function() { location.reload(); }, 500);
+            }
+        });
+    }
+}
+</script>

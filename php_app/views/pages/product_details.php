@@ -1,6 +1,6 @@
 <?php
 $product = $product ?? null;
-$related = $related ?? [];
+$related_products = $related_products ?? [];
 $reviews = $reviews ?? [];
 $review_stats = $review_stats ?? ['count' => 0, 'avg_rating' => 0];
 $dark = $dark ?? false;
@@ -9,7 +9,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
 if (!$product): ?>
 <div class="py-20 text-center min-h-[60vh] flex items-center justify-center">
     <div class="max-w-md mx-auto px-4">
-        <h2 class="text-3xl font-heading font-bold mb-3 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Product not found</h2>
+        <h2 class="text-3xl font-heading font-bold mb-3 <?= $dark ? 'text-white' : 'text-gray-900' ?>">No products found.</h2>
         <a href="<?= $baseUrl ?>/products" class="btn-primary inline-flex items-center gap-2">Back to Products</a>
     </div>
 </div>
@@ -23,17 +23,18 @@ $specs = !empty($product['specifications']) ? array_filter(explode("\n", $produc
 $discount = $hasOffer ? round((1 - ($product['offer_price'] ?? 0) / ($product['price'] ?? 1)) * 100) : 0;
 $inCart = $in_cart ?? false;
 $inCartQty = $in_cart_qty ?? 0;
+$is_authenticated = $is_authenticated ?? false;
 ?>
 <div class="py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
         <nav class="flex items-center text-sm mb-8 overflow-x-auto">
-            <a href="<?= $baseUrl ?>/" class="whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>">Home</a>
+            <a href="<?= $baseUrl ?>/" class="transition-colors whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>">Home</a>
             <svg class="w-3.5 h-3.5 mx-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <a href="<?= $baseUrl ?>/products" class="whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>">Products</a>
+            <a href="<?= $baseUrl ?>/products" class="transition-colors whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>">Products</a>
             <?php if (!empty($product['category_name'])): ?>
             <svg class="w-3.5 h-3.5 mx-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            <a href="<?= $baseUrl ?>/categories/<?= htmlspecialchars($product['category_slug'] ?? '') ?>" class="whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>"><?= htmlspecialchars($product['category_name']) ?></a>
+            <a href="<?= $baseUrl ?>/categories/<?= htmlspecialchars($product['category_slug'] ?? '') ?>" class="transition-colors whitespace-nowrap <?= $dark ? 'text-gray-500 hover:text-primary-400' : 'text-gray-400 hover:text-primary-600' ?>"><?= htmlspecialchars($product['category_name']) ?></a>
             <?php endif; ?>
             <svg class="w-3.5 h-3.5 mx-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             <span class="font-medium truncate <?= $dark ? 'text-white' : 'text-gray-900' ?>"><?= htmlspecialchars($product['name'] ?? '') ?></span>
@@ -49,7 +50,7 @@ $inCartQty = $in_cart_qty ?? 0;
                 <?php if (count($images) > 1): ?>
                 <div class="flex gap-3 overflow-x-auto pb-2">
                     <?php foreach ($images as $i => $img): ?>
-                    <button onclick="document.getElementById('main-product-image').src='<?= htmlspecialchars($img) ?>'; document.querySelectorAll('.thumb-btn').forEach(function(b){b.classList.remove('border-primary-500','ring-2','ring-primary-200');}); this.classList.add('border-primary-500','ring-2','ring-primary-200');" class="thumb-btn w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 border-2 <?= $i === 0 ? 'border-primary-500 shadow-lg ring-2 ring-primary-200' : ($dark ? 'border-gray-600 hover:border-gray-500' : 'border-gray-200 hover:border-gray-300') ?> opacity-70 hover:opacity-100">
+                    <button onclick="selectImage(<?= $i ?>, '<?= htmlspecialchars($img) ?>')" class="thumb-btn w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 border-2 <?= $i === 0 ? 'border-primary-500 shadow-lg ring-2 ring-primary-200' : ($dark ? 'border-gray-600 hover:border-gray-500' : 'border-gray-200 hover:border-gray-300') ?> opacity-70 hover:opacity-100">
                         <img src="<?= htmlspecialchars($img) ?>" alt="" class="w-full h-full object-cover" />
                     </button>
                     <?php endforeach; ?>
@@ -159,7 +160,7 @@ $inCartQty = $in_cart_qty ?? 0;
             </div>
         </div>
 
-        <!-- Reviews -->
+        <!-- Reviews Section -->
         <div class="mt-20">
             <div class="mb-10">
                 <span class="font-semibold text-sm uppercase tracking-[0.2em] <?= $dark ? 'text-primary-400' : 'text-primary-600' ?>">Reviews</span>
@@ -168,16 +169,17 @@ $inCartQty = $in_cart_qty ?? 0;
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Review Form -->
                 <div class="card p-6 <?= $dark ? 'bg-gray-800 border-gray-700' : '' ?>">
                     <h3 class="text-lg font-heading font-bold mb-4 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Write a Review</h3>
-                    <?php if ($is_authenticated ?? false): ?>
+                    <?php if ($is_authenticated): ?>
                     <form action="<?= $baseUrl ?>/api/reviews" method="POST" class="space-y-4" onsubmit="handleReviewSubmit(event)">
                         <input type="hidden" name="product_id" value="<?= $product['id'] ?? 0 ?>">
                         <div>
                             <label class="block text-sm font-bold mb-2 <?= $dark ? 'text-gray-300' : 'text-gray-700' ?>">Your Rating</label>
                             <div class="flex gap-1" id="rating-stars">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <button type="button" onclick="setRating(<?= $i ?>)" class="star-btn <?= $i <= 5 ? 'text-accent-400 fill-accent-400' : 'text-gray-300 dark:text-gray-600' ?>">
+                                <button type="button" onclick="setRating(<?= $i ?>)" class="star-btn text-accent-400 fill-accent-400">
                                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                 </button>
                                 <?php endfor; ?>
@@ -200,6 +202,7 @@ $inCartQty = $in_cart_qty ?? 0;
                     <?php endif; ?>
                 </div>
 
+                <!-- Reviews List -->
                 <div class="lg:col-span-2 space-y-4">
                     <?php if (!empty($reviews)): ?>
                         <?php foreach ($reviews as $review): ?>
@@ -236,7 +239,7 @@ $inCartQty = $in_cart_qty ?? 0;
         </div>
 
         <!-- Related Products -->
-        <?php if (!empty($related)): ?>
+        <?php if (!empty($related_products)): ?>
         <div class="mt-20">
             <div class="mb-10">
                 <span class="font-semibold text-sm uppercase tracking-[0.2em] <?= $dark ? 'text-primary-400' : 'text-primary-600' ?>">You may also like</span>
@@ -244,7 +247,7 @@ $inCartQty = $in_cart_qty ?? 0;
                 <div class="w-20 h-1.5 bg-gradient-to-r from-primary-500 via-primary-400 to-secondary-500 rounded-full mt-4"></div>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <?php foreach ($related as $p): ?>
+                <?php foreach ($related_products as $p): ?>
                     <?= view('components.product_card', ['product' => $p, 'dark' => $dark]) ?>
                 <?php endforeach; ?>
             </div>
@@ -258,16 +261,47 @@ var currentQty = 1;
 var maxStock = <?= $product['stock'] ?? 0 ?>;
 var currentRating = 5;
 
-function setRating(r) { currentRating = r; document.querySelectorAll('.star-btn').forEach(function(b, i) { var svg = b.querySelector('svg'); if (i < r) { svg.classList.add('text-accent-400', 'fill-accent-400'); svg.classList.remove('text-gray-300', 'dark:text-gray-600'); } else { svg.classList.remove('text-accent-400', 'fill-accent-400'); svg.classList.add('text-gray-300', 'dark:text-gray-600'); } }); }
+function selectImage(index, src) {
+    document.getElementById('main-product-image').src = src;
+    document.querySelectorAll('.thumb-btn').forEach(function(b, i) {
+        if (i === index) {
+            b.classList.add('border-primary-500', 'ring-2', 'ring-primary-200');
+        } else {
+            b.classList.remove('border-primary-500', 'ring-2', 'ring-primary-200');
+        }
+    });
+}
 
-function updateQty(delta) { currentQty = Math.max(1, Math.min(maxStock, currentQty + delta)); document.getElementById('qty-display').textContent = currentQty; }
+function setRating(r) {
+    currentRating = r;
+    document.querySelectorAll('.star-btn').forEach(function(b, i) {
+        var svg = b.querySelector('svg');
+        if (i < r) {
+            svg.classList.add('text-accent-400', 'fill-accent-400');
+            svg.classList.remove('text-gray-300', 'dark:text-gray-600');
+        } else {
+            svg.classList.remove('text-accent-400', 'fill-accent-400');
+            svg.classList.add('text-gray-300', 'dark:text-gray-600');
+        }
+    });
+}
+
+function updateQty(delta) {
+    currentQty = Math.max(1, Math.min(maxStock, currentQty + delta));
+    document.getElementById('qty-display').textContent = currentQty;
+}
 
 function handleAddToCart(productId) {
+    var token = localStorage.getItem('customerToken');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
     var data = JSON.stringify({ product_id: productId, quantity: currentQty });
     fetch('<?= $baseUrl ?>/api/cart/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: data })
     .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.success) { showToast('Added to cart!'); setTimeout(function() { location.reload(); }, 500); } else { showToast(res.message || 'Please login first', 'error'); } })
-    .catch(function() { showToast('Error', 'error'); });
+    .then(function(res) { if (res.success) { if (typeof showToast === 'function') showToast('Added to cart!'); setTimeout(function() { location.reload(); }, 500); } else { if (typeof showToast === 'function') showToast(res.message || 'Please login first', 'error'); } })
+    .catch(function() { if (typeof showToast === 'function') showToast('Error', 'error'); });
 }
 
 function handleBuyNow(productId) {
@@ -277,6 +311,11 @@ function handleBuyNow(productId) {
 
 function handleReviewSubmit(e) {
     e.preventDefault();
+    var token = localStorage.getItem('customerToken');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
     var form = e.target;
     var btn = document.getElementById('review-submit-btn');
     var text = document.getElementById('review-submit-text');
@@ -287,9 +326,9 @@ function handleReviewSubmit(e) {
     fetch(form.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
     .then(function(r) { return r.json(); })
     .then(function(res) {
-        if (res.success) { showToast('Review submitted!'); setTimeout(function() { location.reload(); }, 500); }
-        else { alert(res.message || 'Failed'); btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden'); }
+        if (res.success) { if (typeof showToast === 'function') showToast('Review submitted!'); setTimeout(function() { location.reload(); }, 500); }
+        else { if (typeof showToast === 'function') showToast(res.message || 'Failed', 'error'); btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden'); }
     })
-    .catch(function() { alert('Error'); btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden'); });
+    .catch(function() { if (typeof showToast === 'function') showToast('Error', 'error'); btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden'); });
 }
 </script>

@@ -1,3 +1,4 @@
+<?php $baseUrl = rtrim(env('APP_URL', ''), '/'); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Devi Fancy Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
     tailwind.config = {
@@ -12,17 +15,18 @@
             extend: {
                 fontFamily: { heading: ['Playfair Display', 'serif'], body: ['Inter', 'sans-serif'] },
                 colors: {
-                    primary: { 50: '#fdf2f4', 100: '#fce7eb', 200: '#f9d0da', 300: '#f4a8ba', 400: '#ec7897', 500: '#e04a6f', 600: '#d6335e', 700: '#b8234a', 800: '#9a1f40', 900: '#801e3a', 950: '#470b1c' },
-                    secondary: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95', 950: '#2e1065' },
-                    accent: { 50: '#fffde7', 100: '#fff9c4', 200: '#fff59d', 300: '#fff176', 400: '#ffee58', 500: '#ffc800', 600: '#f9a825', 700: '#f57f17' },
+                    primary: { 50:'#fdf2f4',100:'#fce7eb',200:'#f9d0d9',300:'#f4a9b9',400:'#ec7894',500:'#e04a6f',600:'#d6335e',700:'#b8234a',800:'#9a1f40',900:'#841e3b' },
+                    secondary: { 50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95' },
+                    accent: { 50:'#fffdf0',100:'#fff9d6',200:'#fff2a8',300:'#ffe870',400:'#ffd940',500:'#ffc800',600:'#e0a800',700:'#b38000',800:'#8a6400',900:'#664b00' },
                 },
             },
         },
     };
     </script>
     <style>
-        @keyframes scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes scale-in { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+        @keyframes float { 0%, 100% { transform:translateY(0px); } 50% { transform:translateY(-8px); } }
         .animate-scale-in { animation: scale-in 0.4s ease-out; }
         .animate-float { animation: float 3s ease-in-out infinite; }
     </style>
@@ -43,7 +47,7 @@
             </div>
             <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-white/10 transition-shadow duration-500">
                 <h2 class="text-2xl font-heading font-bold text-white mb-6 text-center">Sign In</h2>
-                <form action="<?= rtrim(env('APP_URL', ''), '/') ?>/api/auth/login" method="POST" class="space-y-5" onsubmit="handleAdminLogin(event)">
+                <form action="<?= $baseUrl ?>/api/auth/login" method="POST" class="space-y-5" onsubmit="handleAdminLogin(event)">
                     <div>
                         <label class="block text-sm font-medium text-white/80 mb-1">Email</label>
                         <input type="email" name="email" value="admin@gmail.com" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" placeholder="admin@gmail.com" required />
@@ -68,9 +72,7 @@
         var btn = document.getElementById('admin-login-btn');
         var text = document.getElementById('admin-login-text');
         var spinner = document.getElementById('admin-login-spinner');
-        btn.disabled = true;
-        text.classList.add('hidden');
-        spinner.classList.remove('hidden');
+        btn.disabled = true; text.classList.add('hidden'); spinner.classList.remove('hidden');
 
         var formData = new FormData(form);
         var data = {};
@@ -84,19 +86,15 @@
         .then(function(r) { return r.json(); })
         .then(function(res) {
             if (res.success) {
-                window.location.href = '<?= rtrim(env('APP_URL', ''), '/') ?>/admin';
+                window.location.href = '<?= $baseUrl ?>/admin';
             } else {
                 alert(res.message || 'Invalid credentials');
-                btn.disabled = false;
-                text.classList.remove('hidden');
-                spinner.classList.add('hidden');
+                btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden');
             }
         })
         .catch(function() {
             alert('Login failed. Please try again.');
-            btn.disabled = false;
-            text.classList.remove('hidden');
-            spinner.classList.add('hidden');
+            btn.disabled = false; text.classList.remove('hidden'); spinner.classList.add('hidden');
         });
     }
     </script>

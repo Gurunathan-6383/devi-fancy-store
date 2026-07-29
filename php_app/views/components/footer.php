@@ -27,9 +27,10 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
             <div>
                 <h4 class="text-lg font-heading font-semibold text-white mb-4">Quick Links</h4>
                 <div class="space-y-2">
-                    <?php foreach (['Home' => '/', 'Categories' => '/categories', 'Catalogues' => '/catalogues', 'Products' => '/products'] as $label => $path): ?>
-                        <a href="<?= $baseUrl . $path ?>" class="block text-sm text-gray-400 hover:text-primary-400 transition-colors"><?= $label ?></a>
-                    <?php endforeach; ?>
+                    <a href="<?= $baseUrl ?>/" class="block text-sm text-gray-400 hover:text-primary-400 transition-colors">Home</a>
+                    <a href="<?= $baseUrl ?>/categories" class="block text-sm text-gray-400 hover:text-primary-400 transition-colors">Categories</a>
+                    <a href="<?= $baseUrl ?>/catalogues" class="block text-sm text-gray-400 hover:text-primary-400 transition-colors">Catalogues</a>
+                    <a href="<?= $baseUrl ?>/products" class="block text-sm text-gray-400 hover:text-primary-400 transition-colors">Products</a>
                 </div>
             </div>
             <div>

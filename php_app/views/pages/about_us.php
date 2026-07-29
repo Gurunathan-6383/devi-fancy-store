@@ -1,29 +1,6 @@
 <?php
 $dark = $dark ?? false;
 $baseUrl = rtrim(env('APP_URL', ''), '/');
-
-$stats = [
-    ['number' => '10,000+', 'label' => 'Happy Customers'],
-    ['number' => '500+', 'label' => 'Products'],
-    ['number' => '50+', 'label' => 'Categories'],
-    ['number' => '4.8', 'label' => 'Rating'],
-];
-
-$values = [
-    ['icon' => '💎', 'title' => 'Quality First', 'desc' => 'Every product is handpicked and quality-checked to ensure you receive only the best.'],
-    ['icon' => '💰', 'title' => 'Affordable Prices', 'desc' => 'Premium accessories at prices that don\'t break the bank. Beauty should be accessible to all.'],
-    ['icon' => '🤝', 'title' => 'Customer Trust', 'desc' => 'Building lasting relationships through honest service and reliable products.'],
-    ['icon' => '🚚', 'title' => 'Fast Delivery', 'desc' => 'Quick and reliable shipping right to your doorstep across India.'],
-    ['icon' => '🔄', 'title' => 'Easy Returns', 'desc' => 'Hassle-free return policy because your satisfaction matters most to us.'],
-    ['icon' => '💝', 'title' => 'Gift Ready', 'desc' => 'Beautiful packaging and gift options for every special occasion.'],
-];
-
-$milestones = [
-    ['year' => '2001', 'title' => 'The Beginning', 'desc' => 'Started with a small shop in Sivakasi with a big dream to bring beautiful accessories to everyone.'],
-    ['year' => '2010', 'title' => 'Trusted Name', 'desc' => 'Became a well-known and trusted name across Sivakasi and nearby towns.'],
-    ['year' => '2020', 'title' => 'Online Store', 'desc' => 'Launched our website to bring our collections to customers across India.'],
-    ['year' => '2026', 'title' => '25 Years Strong', 'desc' => 'Celebrating 25 years of trust, quality, and 500+ products across 50+ categories.'],
-];
 ?>
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Hero -->
@@ -56,12 +33,10 @@ $milestones = [
     <!-- Stats Bar -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 rounded-2xl p-6 shadow-xl border <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
-            <?php foreach ($stats as $s): ?>
-            <div class="text-center py-2">
-                <p class="text-2xl md:text-3xl font-heading font-bold text-gradient"><?= $s['number'] ?></p>
-                <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>"><?= $s['label'] ?></p>
-            </div>
-            <?php endforeach; ?>
+            <div class="text-center py-2"><p class="text-2xl md:text-3xl font-heading font-bold text-gradient">10,000+</p><p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>">Happy Customers</p></div>
+            <div class="text-center py-2"><p class="text-2xl md:text-3xl font-heading font-bold text-gradient">500+</p><p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>">Products</p></div>
+            <div class="text-center py-2"><p class="text-2xl md:text-3xl font-heading font-bold text-gradient">50+</p><p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>">Categories</p></div>
+            <div class="text-center py-2"><p class="text-2xl md:text-3xl font-heading font-bold text-gradient">4.8</p><p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>">Rating</p></div>
         </div>
     </div>
 
@@ -85,9 +60,10 @@ $milestones = [
                 <p class="leading-relaxed mb-4 <?= $dark ? 'text-gray-300' : 'text-gray-600' ?>">Devi Fancy Store was born over 25 years ago from a simple idea — everyone deserves access to beautiful accessories and gifts without paying premium prices. What started as a small shop in Sivakasi has grown into a trusted online destination for thousands of customers across India.</p>
                 <p class="leading-relaxed mb-6 <?= $dark ? 'text-gray-300' : 'text-gray-600' ?>">For a quarter century, we have been handpicking every product with love, ensuring quality, style, and affordability go hand in hand. From stunning bangles to elegant earrings, from practical hair accessories to gorgeous gift items — we have something for every occasion and every personality.</p>
                 <div class="flex flex-wrap gap-3">
-                    <?php foreach (['25 Years of Trust', 'Quality Products', 'Affordable Prices', 'Pan India Delivery'] as $tag): ?>
-                    <span class="px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium">✓ <?= $tag ?></span>
-                    <?php endforeach; ?>
+                    <span class="px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium">✓ 25 Years of Trust</span>
+                    <span class="px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium">✓ Quality Products</span>
+                    <span class="px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium">✓ Affordable Prices</span>
+                    <span class="px-4 py-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium">✓ Pan India Delivery</span>
                 </div>
             </div>
         </div>
@@ -123,13 +99,12 @@ $milestones = [
                 <h2 class="text-3xl md:text-4xl font-heading font-bold <?= $dark ? 'text-white' : 'text-gray-900' ?>">Why Choose <span class="text-gradient">Devi Fancy Store</span>?</h2>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php foreach ($values as $v): ?>
-                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
-                    <div class="text-4xl mb-4"><?= $v['icon'] ?></div>
-                    <h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>"><?= $v['title'] ?></h3>
-                    <p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>"><?= $v['desc'] ?></p>
-                </div>
-                <?php endforeach; ?>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">💎</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Quality First</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Every product is handpicked and quality-checked to ensure you receive only the best.</p></div>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">💰</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Affordable Prices</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Premium accessories at prices that don't break the bank. Beauty should be accessible to all.</p></div>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">🤝</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Customer Trust</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Building lasting relationships through honest service and reliable products.</p></div>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">🚚</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Fast Delivery</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Quick and reliable shipping right to your doorstep across India.</p></div>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">🔄</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Easy Returns</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Hassle-free return policy because your satisfaction matters most to us.</p></div>
+                <div class="rounded-2xl p-6 shadow-md border transition-all hover:-translate-y-1 hover:shadow-xl <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>"><div class="text-4xl mb-4">💝</div><h3 class="text-lg font-heading font-bold mb-2 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Gift Ready</h3><p class="text-sm leading-relaxed <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Beautiful packaging and gift options for every special occasion.</p></div>
             </div>
         </div>
     </div>
@@ -143,19 +118,54 @@ $milestones = [
         <div class="relative">
             <div class="absolute left-1/2 -translate-x-px top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary-500 to-secondary-500 hidden md:block"></div>
             <div class="space-y-8 md:space-y-0">
-                <?php foreach ($milestones as $i => $m): ?>
-                <div class="relative md:flex items-center <?= $i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse' ?>">
-                    <div class="md:w-1/2 <?= $i % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12' ?>">
+                <!-- 2001 -->
+                <div class="relative md:flex items-center md:flex-row">
+                    <div class="md:w-1/2 md:pr-12 md:text-right">
                         <div class="rounded-2xl p-6 shadow-md border <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
-                            <span class="text-primary-600 font-heading font-bold text-lg"><?= $m['year'] ?></span>
-                            <h3 class="font-heading font-bold text-lg mt-1 <?= $dark ? 'text-white' : 'text-gray-900' ?>"><?= $m['title'] ?></h3>
-                            <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>"><?= $m['desc'] ?></p>
+                            <span class="text-primary-600 font-heading font-bold text-lg">2001</span>
+                            <h3 class="font-heading font-bold text-lg mt-1 <?= $dark ? 'text-white' : 'text-gray-900' ?>">The Beginning</h3>
+                            <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Started with a small shop in Sivakasi with a big dream to bring beautiful accessories to everyone.</p>
                         </div>
                     </div>
                     <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary-500 rounded-full border-4 border-white dark:border-gray-900 shadow-lg z-10"></div>
                     <div class="md:w-1/2"></div>
                 </div>
-                <?php endforeach; ?>
+                <!-- 2010 -->
+                <div class="relative md:flex items-center md:flex-row-reverse">
+                    <div class="md:w-1/2 md:pl-12">
+                        <div class="rounded-2xl p-6 shadow-md border <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
+                            <span class="text-primary-600 font-heading font-bold text-lg">2010</span>
+                            <h3 class="font-heading font-bold text-lg mt-1 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Trusted Name</h3>
+                            <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Became a well-known and trusted name across Sivakasi and nearby towns.</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary-500 rounded-full border-4 border-white dark:border-gray-900 shadow-lg z-10"></div>
+                    <div class="md:w-1/2"></div>
+                </div>
+                <!-- 2020 -->
+                <div class="relative md:flex items-center md:flex-row">
+                    <div class="md:w-1/2 md:pr-12 md:text-right">
+                        <div class="rounded-2xl p-6 shadow-md border <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
+                            <span class="text-primary-600 font-heading font-bold text-lg">2020</span>
+                            <h3 class="font-heading font-bold text-lg mt-1 <?= $dark ? 'text-white' : 'text-gray-900' ?>">Online Store</h3>
+                            <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Launched our website to bring our collections to customers across India.</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary-500 rounded-full border-4 border-white dark:border-gray-900 shadow-lg z-10"></div>
+                    <div class="md:w-1/2"></div>
+                </div>
+                <!-- 2026 -->
+                <div class="relative md:flex items-center md:flex-row-reverse">
+                    <div class="md:w-1/2 md:pl-12">
+                        <div class="rounded-2xl p-6 shadow-md border <?= $dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100' ?>">
+                            <span class="text-primary-600 font-heading font-bold text-lg">2026</span>
+                            <h3 class="font-heading font-bold text-lg mt-1 <?= $dark ? 'text-white' : 'text-gray-900' ?>">25 Years Strong</h3>
+                            <p class="text-sm mt-1 <?= $dark ? 'text-gray-400' : 'text-gray-600' ?>">Celebrating 25 years of trust, quality, and 500+ products across 50+ categories.</p>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary-500 rounded-full border-4 border-white dark:border-gray-900 shadow-lg z-10"></div>
+                    <div class="md:w-1/2"></div>
+                </div>
             </div>
         </div>
     </div>

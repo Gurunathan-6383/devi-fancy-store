@@ -9,7 +9,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
             <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white">Manage Products</h1>
             <p class="text-gray-500 mt-1"><?= count($products) ?> product(s) total</p>
         </div>
-        <button onclick="openProductModal()" class="btn-primary flex items-center space-x-2">
+        <button data-open-modal="product-modal" class="btn-primary flex items-center space-x-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Add Product</span>
         </button>
@@ -28,7 +28,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
                     <th class="text-right px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y">
+            <tbody id="products-tbody" class="divide-y">
                 <?php foreach ($products as $p):
                     $images = $p['images'] ?? [];
                     if (is_string($images)) $images = json_decode($images, true) ?: [];
@@ -67,64 +67,64 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
         </table>
     </div>
 
-    <!-- Modal -->
-    <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+    <div id="product-modal" class="modal fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center z-50 p-4" style="display:none">
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-scale-in">
             <h2 id="product-modal-title" class="text-xl font-heading font-bold text-gray-900 dark:text-white mb-4">Add Product</h2>
             <form id="product-form" class="space-y-4">
-                <input type="hidden" id="product-id" value="">
+                <input type="hidden" name="id" value="">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name</label>
-                        <input type="text" id="product-name" class="input-field" required />
+                        <input type="text" name="name" class="input-field" required />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                        <select id="product-category" class="input-field" required>
+                        <select name="category_id" class="input-field" required>
                             <option value="">Select category</option>
                             <?php foreach ($categories as $c): ?><option value="<?= $c['id'] ?? '' ?>"><?= htmlspecialchars($c['name'] ?? '') ?></option><?php endforeach; ?>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                        <select id="product-status" class="input-field">
+                        <select name="status" class="input-field">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (₹)</label>
-                        <input type="number" step="0.01" id="product-price" class="input-field" required />
+                        <input type="number" step="0.01" name="price" class="input-field" required />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Offer Price (₹)</label>
-                        <input type="number" step="0.01" id="product-offer-price" class="input-field" />
+                        <input type="number" step="0.01" name="offer_price" class="input-field" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
-                        <input type="number" id="product-stock" class="input-field" value="0" />
+                        <input type="number" name="stock" class="input-field" value="0" />
                     </div>
                     <div class="flex items-center space-x-2 pt-6">
-                        <input type="checkbox" id="product-featured" class="w-4 h-4 text-primary-600" />
-                        <label for="product-featured" class="text-sm font-medium text-gray-700 dark:text-gray-300">Featured Product</label>
+                        <input type="checkbox" name="is_featured" id="is_featured" class="w-4 h-4 text-primary-600" />
+                        <label for="is_featured" class="text-sm font-medium text-gray-700 dark:text-gray-300">Featured Product</label>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea id="product-description" class="input-field" rows="3"></textarea>
+                        <textarea name="description" class="input-field" rows="3"></textarea>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Specifications (one per line)</label>
-                        <textarea id="product-specs" class="input-field" rows="3" placeholder="Material: Gold&#10;Weight: 10g&#10;Size: Medium"></textarea>
+                        <textarea name="specifications" class="input-field" rows="3" placeholder="Material: Gold&#10;Weight: 10g&#10;Size: Medium"></textarea>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Images</label>
-                        <input type="file" id="product-images" multiple accept="image/*" class="input-field" />
+                        <input type="file" name="images" multiple accept="image/*" class="input-field" />
+                        <input type="hidden" name="existing_images" value="[]" />
                         <div id="existing-images" class="flex flex-wrap gap-2 mt-2"></div>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Cancel</button>
-                    <button type="submit" id="product-submit-btn" class="btn-primary">Create</button>
+                    <button type="button" data-close-modal class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Cancel</button>
+                    <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
@@ -132,75 +132,70 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
 </div>
 
 <script>
-var productEditId = null;
+var _productsData = <?= json_encode(array_values($products)) ?>;
 var existingImages = [];
 
-function openProductModal() {
-    productEditId = null; existingImages = [];
-    ['product-id','product-name','product-category','product-price','product-offer-price','product-stock','product-description','product-specs'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
-    document.getElementById('product-status').value = 'active';
-    document.getElementById('product-featured').checked = false;
-    document.getElementById('product-images').value = '';
-    document.getElementById('existing-images').innerHTML = '';
-    document.getElementById('product-modal-title').textContent = 'Add Product';
-    document.getElementById('product-submit-btn').textContent = 'Create';
-    document.getElementById('product-modal').classList.remove('hidden');
-}
-function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
-
 function editProduct(id) {
-    productEditId = id;
-    fetch('<?= $baseUrl ?>/api/products/' + id).then(function(r) { return r.json(); }).then(function(res) {
-        if (res.success) {
-            var p = res.data;
-            document.getElementById('product-name').value = p.name;
-            document.getElementById('product-category').value = p.category_id || '';
-            document.getElementById('product-price').value = p.price;
-            document.getElementById('product-offer-price').value = p.offer_price || '';
-            document.getElementById('product-stock').value = p.stock || 0;
-            document.getElementById('product-description').value = p.description || '';
-            document.getElementById('product-specs').value = p.specifications || '';
-            document.getElementById('product-status').value = p.status || 'active';
-            document.getElementById('product-featured').checked = !!p.is_featured;
-            existingImages = (typeof p.images === 'string' ? JSON.parse(p.images || '[]') : (p.images || []));
-            var container = document.getElementById('existing-images');
-            container.innerHTML = '';
-            existingImages.forEach(function(img, i) {
-                var div = document.createElement('div');
-                div.className = 'relative';
-                div.innerHTML = '<img src="' + img + '" class="w-16 h-16 rounded object-cover" /><button type="button" onclick="removeExistingImage(' + i + ')" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">&times;</button>';
-                container.appendChild(div);
-            });
-            document.getElementById('product-modal-title').textContent = 'Edit Product';
-            document.getElementById('product-submit-btn').textContent = 'Update';
-            document.getElementById('product-modal').classList.remove('hidden');
-        } else showToast('Failed to load product', 'error');
+    var prod = _productsData.find(function(p) { return p.id === id; });
+    if (!prod) return;
+    var form = document.getElementById('product-form');
+    form.querySelector('[name="id"]').value = prod.id;
+    form.querySelector('[name="name"]').value = prod.name || '';
+    form.querySelector('[name="category_id"]').value = prod.category_id || '';
+    form.querySelector('[name="status"]').value = prod.status || 'active';
+    form.querySelector('[name="price"]').value = prod.price || '';
+    form.querySelector('[name="offer_price"]').value = prod.offer_price || '';
+    form.querySelector('[name="stock"]').value = prod.stock || 0;
+    form.querySelector('[name="description"]').value = prod.description || '';
+    form.querySelector('[name="specifications"]').value = prod.specifications || '';
+    form.querySelector('[name="is_featured"]').checked = !!prod.is_featured;
+    existingImages = (typeof prod.images === 'string' ? JSON.parse(prod.images || '[]') : (prod.images || []));
+    form.querySelector('[name="existing_images"]').value = JSON.stringify(existingImages);
+    renderExistingImages();
+    document.getElementById('product-modal-title').textContent = 'Edit Product';
+    form.querySelector('[type="submit"]').textContent = 'Update';
+    form.querySelector('[type="submit"]').setAttribute('data-save', 'updateProduct');
+    form.querySelector('[type="submit"]').removeAttribute('data-create');
+    openModal('product-modal');
+}
+
+function renderExistingImages() {
+    var container = document.getElementById('existing-images');
+    container.innerHTML = '';
+    existingImages.forEach(function(img, i) {
+        var div = document.createElement('div');
+        div.className = 'relative';
+        div.innerHTML = '<img src="' + img + '" class="w-16 h-16 rounded object-cover" /><button type="button" onclick="removeExistingImage(' + i + ')" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">&times;</button>';
+        container.appendChild(div);
     });
 }
 
-function removeExistingImage(index) { existingImages.splice(index, 1); var container = document.getElementById('existing-images'); container.innerHTML = ''; existingImages.forEach(function(img, i) { var div = document.createElement('div'); div.className = 'relative'; div.innerHTML = '<img src="' + img + '" class="w-16 h-16 rounded object-cover" /><button type="button" onclick="removeExistingImage(' + i + ')" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">&times;</button>'; container.appendChild(div); }); }
+function removeExistingImage(index) {
+    existingImages.splice(index, 1);
+    document.getElementById('product-form').querySelector('[name="existing_images"]').value = JSON.stringify(existingImages);
+    renderExistingImages();
+}
 
 document.getElementById('product-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    var formData = new FormData();
-    formData.append('name', document.getElementById('product-name').value);
-    formData.append('category_id', document.getElementById('product-category').value);
-    formData.append('description', document.getElementById('product-description').value || '');
-    formData.append('specifications', document.getElementById('product-specs').value || '');
-    formData.append('price', document.getElementById('product-price').value);
-    formData.append('offer_price', document.getElementById('product-offer-price').value || '');
-    formData.append('stock', document.getElementById('product-stock').value || '0');
-    formData.append('status', document.getElementById('product-status').value);
-    formData.append('is_featured', document.getElementById('product-featured').checked ? '1' : '0');
-    formData.append('existing_images', JSON.stringify(existingImages));
-    var fileInput = document.getElementById('product-images');
-    for (var i = 0; i < fileInput.files.length; i++) formData.append('images', fileInput.files[i]);
-    var url = productEditId ? '<?= $baseUrl ?>/api/products/' + productEditId : '<?= $baseUrl ?>/api/products';
-    fetch(url, { method: 'POST', body: formData })
+    var form = e.target;
+    var id = form.querySelector('[name="id"]').value;
+    var fd = new FormData(form);
+    if (id) fd.append('_method', 'PUT');
+    var url = id ? '<?= $baseUrl ?>/api/products/' + id : '<?= $baseUrl ?>/api/products';
+    fetch(url, { method: 'POST', body: fd })
     .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.success) { showToast(productEditId ? 'Product updated!' : 'Product created!'); closeProductModal(); location.reload(); } else showToast(res.message || 'Failed to save', 'error'); })
+    .then(function(res) {
+        if (res.success) { showToast(id ? 'Product updated!' : 'Product created!'); closeModal('product-modal'); location.reload(); }
+        else showToast(res.message || 'Failed to save', 'error');
+    })
     .catch(function() { showToast('Failed to save', 'error'); });
 });
 
-function deleteProduct(id) { if (!confirm('Delete this product?')) return; fetch('<?= $baseUrl ?>/api/products/' + id, { method: 'DELETE' }).then(function(r) { return r.json(); }).then(function(res) { if (res.success) { showToast('Product deleted!'); location.reload(); } else showToast('Failed to delete', 'error'); }); }
+function deleteProduct(id) {
+    if (!confirm('Delete this product?')) return;
+    fetch('<?= $baseUrl ?>/api/products/' + id, { method: 'DELETE' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.success) { showToast('Product deleted!'); location.reload(); } else showToast('Failed to delete', 'error'); });
+}
 </script>

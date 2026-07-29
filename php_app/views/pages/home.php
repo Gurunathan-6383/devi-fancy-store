@@ -1,5 +1,5 @@
 <?php
-$featured = $featured ?? [];
+$featured_products = $featured_products ?? [];
 $categories = $categories ?? [];
 $catalogues = $catalogues ?? [];
 $dark = $dark ?? false;
@@ -24,8 +24,8 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
     <section class="relative min-h-[92vh] flex items-center overflow-hidden">
         <div class="absolute inset-0">
             <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1920&q=80" alt="" class="w-full h-full object-cover" />
-            <div class="absolute inset-0 bg-gradient-to-r from-primary-900/95 via-primary-800/80 to-secondary-900/85" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-900/95 via-primary-800/80 to-secondary-900/85"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20"></div>
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
@@ -54,7 +54,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
         <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
             <span class="text-white/50 text-xs tracking-widest uppercase">Scroll</span>
             <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
-                <div class="w-1.5 h-3 bg-white/50 rounded-full animate-pulse" />
+                <div class="w-1.5 h-3 bg-white/50 rounded-full animate-pulse"></div>
             </div>
         </div>
     </section>
@@ -125,8 +125,8 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
                 </a>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                <?php if (!empty($featured)): ?>
-                    <?php foreach ($featured as $p): ?>
+                <?php if (!empty($featured_products)): ?>
+                    <?php foreach ($featured_products as $p): ?>
                         <?= view('components.product_card', ['product' => $p, 'dark' => $dark]) ?>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -170,7 +170,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
     <section class="relative py-28 overflow-hidden">
         <div class="absolute inset-0">
             <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=1920&q=80" alt="" class="w-full h-full object-cover" />
-            <div class="absolute inset-0 bg-gradient-to-r from-primary-900/95 to-secondary-900/95" />
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-900/95 to-secondary-900/95"></div>
         </div>
         <div class="relative max-w-4xl mx-auto px-4 text-center animate-slide-up">
             <svg class="w-12 h-12 text-accent-400 mx-auto mb-6 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>

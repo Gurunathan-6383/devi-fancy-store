@@ -9,7 +9,7 @@ $router->setNotFoundHandler(function () {
         Response::json(['success' => false, 'message' => 'Not Found'], 404);
     }
     http_response_code(404);
-    echo view('layouts.main', view('pages.404'), ['title' => 'Page Not Found']);
+    echo layout('main', view('pages.404'), ['title' => 'Page Not Found']);
 });
 
 // Health check

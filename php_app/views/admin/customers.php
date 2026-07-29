@@ -12,7 +12,7 @@ if (!empty($search)) {
 }
 ?>
 <div>
-    <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white mb-6">Customers</h1>
+    <h1 class="text-2xl font-heading font-bold text-gray-900 dark:text-white mb-6">Customers</h1>
 
     <div class="card p-4 mb-6">
         <form method="GET">
@@ -27,10 +27,10 @@ if (!empty($search)) {
         <table class="w-full">
             <thead class="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
                 <tr>
-                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Name</th>
-                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Phone</th>
-                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Address</th>
-                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600 dark:text-gray-300">Total Orders</th>
+                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
+                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
+                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Address</th>
+                    <th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Total Orders</th>
                 </tr>
             </thead>
             <tbody class="divide-y">

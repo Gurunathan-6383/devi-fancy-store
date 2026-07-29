@@ -34,7 +34,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
             </div>
 
             <div class="flex items-center space-x-1.5">
-                <button onclick="toggleDarkMode()" class="p-2.5 rounded-full transition-all <?= $dark ? 'text-yellow-400 hover:bg-gray-800' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50' ?>">
+                <button onclick="toggleTheme()" class="p-2.5 rounded-full transition-all <?= $dark ? 'text-yellow-400 hover:bg-gray-800' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50' ?>">
                     <?php if ($dark): ?>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <?php else: ?>
@@ -76,10 +76,13 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
                             <p class="font-bold text-sm <?= $dark ? 'text-white' : 'text-gray-900' ?>"><?= htmlspecialchars($customer['name'] ?? '') ?></p>
                             <p class="text-xs mt-0.5 <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>"><?= htmlspecialchars($customer['email'] ?? '') ?></p>
                         </div>
-                        <a href="<?= $baseUrl ?>/logout" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                        <button
+                            onclick="handleSignOut()"
+                            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                             Sign Out
-                        </a>
+                        </button>
                     </div>
                     <?php else: ?>
                     <a href="<?= $baseUrl ?>/login" class="flex items-center gap-2 px-3 py-2 rounded-full transition-all <?= $dark ? 'text-gray-300 hover:text-primary-400 hover:bg-gray-800' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50' ?>">
@@ -124,7 +127,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
                             <p class="text-xs <?= $dark ? 'text-gray-400' : 'text-gray-500' ?>"><?= htmlspecialchars($customer['email'] ?? '') ?></p>
                         </div>
                     </div>
-                    <a href="<?= $baseUrl ?>/logout" class="w-full text-left block px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium rounded-lg transition-colors">Sign Out</a>
+                    <button onclick="handleSignOut()" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium rounded-lg transition-colors">Sign Out</button>
                 <?php else: ?>
                     <a href="<?= $baseUrl ?>/login" onclick="closeMobileMenu()" class="block px-4 py-3 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium rounded-lg transition-colors">Sign In</a>
                     <a href="<?= $baseUrl ?>/signup" onclick="closeMobileMenu()" class="block px-4 py-3 font-medium rounded-lg transition-colors <?= $dark ? 'text-gray-300 hover:bg-gray-800' : 'text-gray-700 hover:bg-gray-50' ?>">Create Account</a>
@@ -191,4 +194,9 @@ document.addEventListener('click', function(e) {
         dropdown.classList.add('hidden');
     }
 });
+
+function handleSignOut() {
+    localStorage.removeItem('customerToken');
+    window.location.href = '/';
+}
 </script>

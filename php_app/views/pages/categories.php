@@ -50,7 +50,7 @@ function getHeight($i) {
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Hero -->
     <div class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900" />
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900"></div>
         <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 50%, rgba(224, 74, 111, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 50%)"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
             <div class="flex flex-col md:flex-row items-center gap-8">

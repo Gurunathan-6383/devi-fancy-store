@@ -9,7 +9,7 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
             <h1 class="text-3xl font-heading font-bold text-gray-900 dark:text-white">Manage Catalogues</h1>
             <p class="text-gray-500 mt-1"><?= count($catalogues) ?> catalogue(s) total</p>
         </div>
-        <button onclick="openCatalogueModal()" class="btn-primary flex items-center space-x-2">
+        <button data-open-modal="catalogue-modal" class="btn-primary flex items-center space-x-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>Add Catalogue</span>
         </button>
@@ -46,38 +46,36 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
         <?php endif; ?>
     </div>
 
-    <!-- Catalogue Modal -->
-    <div id="catalogue-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+    <div id="catalogue-modal" class="modal fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center z-50 p-4" style="display:none">
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-in">
             <h2 id="catalogue-modal-title" class="text-xl font-heading font-bold text-gray-900 dark:text-white mb-4">Add Catalogue</h2>
             <form id="catalogue-form" class="space-y-4">
-                <input type="hidden" id="catalogue-id" value="">
+                <input type="hidden" name="id" value="">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-                    <input type="text" id="catalogue-title" class="input-field" required />
+                    <input type="text" name="title" class="input-field" required />
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                    <textarea id="catalogue-description" class="input-field" rows="3"></textarea>
+                    <textarea name="description" class="input-field" rows="3"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image</label>
-                    <input type="file" id="catalogue-image" accept="image/*" class="input-field" />
+                    <input type="file" name="image" accept="image/*" class="input-field" />
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeCatalogueModal()" class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Cancel</button>
-                    <button type="submit" id="catalogue-submit-btn" class="btn-primary">Create</button>
+                    <button type="button" data-close-modal class="px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium">Cancel</button>
+                    <button type="submit" class="btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Manage Products Modal -->
-    <div id="product-modal-panel" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+    <div id="product-modal-panel" class="modal fixed inset-0 bg-black/50 backdrop-blur-sm items-center justify-center z-50 p-4" style="display:none">
         <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl animate-scale-in">
             <div class="flex items-center justify-between mb-4">
                 <h2 id="product-modal-panel-title" class="text-xl font-heading font-bold text-gray-900 dark:text-white">Catalogue - Products</h2>
-                <button onclick="closeProductPanel()" class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                <button data-close-modal class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -96,66 +94,92 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
 </div>
 
 <script>
-var catalogueEditId = null;
+var _cataloguesData = <?= json_encode(array_values($catalogues)) ?>;
 var selectedCatalogueId = null;
 
-function openCatalogueModal() { catalogueEditId = null; document.getElementById('catalogue-id').value = ''; document.getElementById('catalogue-title').value = ''; document.getElementById('catalogue-description').value = ''; document.getElementById('catalogue-image').value = ''; document.getElementById('catalogue-modal-title').textContent = 'Add Catalogue'; document.getElementById('catalogue-submit-btn').textContent = 'Create'; document.getElementById('catalogue-modal').classList.remove('hidden'); }
-function closeCatalogueModal() { document.getElementById('catalogue-modal').classList.add('hidden'); }
-
 function editCatalogue(id) {
-    catalogueEditId = id;
-    fetch('<?= $baseUrl ?>/api/catalogues/' + id).then(function(r) { return r.json(); }).then(function(res) {
-        if (res.success) {
-            var cat = res.data;
-            document.getElementById('catalogue-title').value = cat.title;
-            document.getElementById('catalogue-description').value = cat.description || '';
-            document.getElementById('catalogue-modal-title').textContent = 'Edit Catalogue';
-            document.getElementById('catalogue-submit-btn').textContent = 'Update';
-            document.getElementById('catalogue-modal').classList.remove('hidden');
-        } else showToast('Failed to load', 'error');
-    });
+    var cat = _cataloguesData.find(function(c) { return c.id === id; });
+    if (!cat) return;
+    var form = document.getElementById('catalogue-form');
+    form.querySelector('[name="id"]').value = cat.id;
+    form.querySelector('[name="title"]').value = cat.title || '';
+    form.querySelector('[name="description"]').value = cat.description || '';
+    document.getElementById('catalogue-modal-title').textContent = 'Edit Catalogue';
+    form.querySelector('[type="submit"]').textContent = 'Update';
+    form.querySelector('[type="submit"]').setAttribute('data-save', 'updateCatalogue');
+    form.querySelector('[type="submit"]').removeAttribute('data-create');
+    openModal('catalogue-modal');
 }
 
 document.getElementById('catalogue-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    var formData = new FormData();
-    formData.append('title', document.getElementById('catalogue-title').value.trim());
-    formData.append('description', document.getElementById('catalogue-description').value.trim());
-    var fileInput = document.getElementById('catalogue-image');
-    if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
-    var url = catalogueEditId ? '<?= $baseUrl ?>/api/catalogues/' + catalogueEditId : '<?= $baseUrl ?>/api/catalogues';
-    fetch(url, { method: 'POST', body: formData })
+    var form = e.target;
+    var id = form.querySelector('[name="id"]').value;
+    var fd = new FormData(form);
+    if (id) fd.append('_method', 'PUT');
+    var url = id ? '<?= $baseUrl ?>/api/catalogues/' + id : '<?= $baseUrl ?>/api/catalogues';
+    fetch(url, { method: 'POST', body: fd })
     .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.success) { showToast(catalogueEditId ? 'Updated!' : 'Created!'); closeCatalogueModal(); location.reload(); } else showToast(res.message || 'Failed', 'error'); });
+    .then(function(res) {
+        if (res.success) { showToast(id ? 'Catalogue updated!' : 'Catalogue created!'); closeModal('catalogue-modal'); location.reload(); }
+        else showToast(res.message || 'Failed', 'error');
+    });
 });
 
-function toggleCataloguePublish(id) { fetch('<?= $baseUrl ?>/api/catalogues/' + id + '/toggle-publish', { method: 'PATCH' }).then(function(r) { return r.json(); }).then(function(res) { if (res.success) { showToast('Toggled!'); location.reload(); } else showToast('Failed', 'error'); }); }
-function deleteCatalogue(id) { if (!confirm('Delete this catalogue?')) return; fetch('<?= $baseUrl ?>/api/catalogues/' + id, { method: 'DELETE' }).then(function(r) { return r.json(); }).then(function(res) { if (res.success) { showToast('Deleted!'); location.reload(); } else showToast('Failed', 'error'); }); }
+function toggleCataloguePublish(id) {
+    fetch('<?= $baseUrl ?>/api/catalogues/' + id + '/toggle-publish', { method: 'PATCH' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.success) { showToast('Toggled!'); location.reload(); } else showToast('Failed', 'error'); });
+}
+
+function deleteCatalogue(id) {
+    if (!confirm('Delete this catalogue?')) return;
+    fetch('<?= $baseUrl ?>/api/catalogues/' + id, { method: 'DELETE' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.success) { showToast('Deleted!'); location.reload(); } else showToast('Failed', 'error'); });
+}
 
 function openManageProducts(id, title) {
     selectedCatalogueId = id;
     document.getElementById('product-modal-panel-title').textContent = title + ' - Products';
     loadCatalogueProducts(id);
-    document.getElementById('product-modal-panel').classList.remove('hidden');
+    openModal('product-modal-panel');
 }
-function closeProductPanel() { document.getElementById('product-modal-panel').classList.add('hidden'); }
 
 function loadCatalogueProducts(id) {
-    fetch('<?= $baseUrl ?>/api/catalogues/' + id + '/products').then(function(r) { return r.json(); }).then(function(res) {
+    fetch('<?= $baseUrl ?>/api/catalogues/' + id + '/products')
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
         var list = document.getElementById('catalogue-products-list');
         list.innerHTML = '';
         if (res.success && res.data.length > 0) {
             res.data.forEach(function(p) {
-                var imgs = p.images || []; if (typeof imgs === 'string') try { imgs = JSON.parse(imgs); } catch(e) { imgs = []; }
+                var imgs = p.images || [];
+                if (typeof imgs === 'string') try { imgs = JSON.parse(imgs); } catch(e) { imgs = []; }
                 var div = document.createElement('div');
                 div.className = 'flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg';
                 div.innerHTML = '<div class="flex items-center space-x-3"><img src="' + (imgs[0] || 'https://via.placeholder.com/40') + '" class="w-10 h-10 rounded object-cover" /><div><p class="font-medium text-gray-900 dark:text-white text-sm">' + p.name + '</p><p class="text-xs text-gray-500">₹' + Math.round(p.offer_price || p.price) + '</p></div></div><button onclick="removeCatalogueProduct(' + p.id + ')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>';
                 list.appendChild(div);
             });
-        } else { list.innerHTML = '<p class="text-center text-gray-500 py-8">No products in this catalogue</p>'; }
+        } else {
+            list.innerHTML = '<p class="text-center text-gray-500 py-8">No products in this catalogue</p>';
+        }
     });
 }
 
-function addProductToCatalogue(productId) { if (!productId) return; fetch('<?= $baseUrl ?>/api/catalogues/' + selectedCatalogueId + '/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: parseInt(productId) }) }).then(function(r) { return r.json(); }).then(function(res) { if (res.success) { showToast('Product added'); loadCatalogueProducts(selectedCatalogueId); } else showToast('Failed', 'error'); }); }
-function removeCatalogueProduct(productId) { fetch('<?= $baseUrl ?>/api/catalogues/' + selectedCatalogueId + '/products/' + productId, { method: 'DELETE' }).then(function(r) { return r.json(); }).then(function(res) { if (res.success) { showToast('Product removed'); loadCatalogueProducts(selectedCatalogueId); } else showToast('Failed', 'error'); }); }
+function addProductToCatalogue(productId) {
+    if (!productId) return;
+    fetch('<?= $baseUrl ?>/api/catalogues/' + selectedCatalogueId + '/products', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: parseInt(productId) })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.success) { showToast('Product added'); loadCatalogueProducts(selectedCatalogueId); } else showToast('Failed', 'error'); });
+}
+
+function removeCatalogueProduct(productId) {
+    fetch('<?= $baseUrl ?>/api/catalogues/' + selectedCatalogueId + '/products/' + productId, { method: 'DELETE' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.success) { showToast('Product removed'); loadCatalogueProducts(selectedCatalogueId); } else showToast('Failed', 'error'); });
+}
 </script>

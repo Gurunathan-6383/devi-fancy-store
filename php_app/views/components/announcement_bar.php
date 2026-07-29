@@ -24,15 +24,28 @@ $duplicated = array_merge($announcements, $announcements, $announcements);
     onmouseleave="this.querySelector('.marquee-track').style.animationPlayState='running'"
 >
     <div class="marquee-track flex items-center h-10 md:h-11" style="animation: marquee-scroll <?= count($announcements) * 15 ?>s linear infinite; width: max-content;">
-        <?php foreach ($duplicated as $a): ?>
+        <?php foreach ($duplicated as $i => $a): ?>
             <?php
             $emoji = $typeEmojis[$a['type']] ?? '📢';
-            $text = '<span class="flex items-center space-x-2 whitespace-nowrap"><span>' . $emoji . '</span><span class="font-semibold">' . htmlspecialchars($a['title']) . '</span><span class="opacity-80">—</span><span>' . htmlspecialchars($a['message']) . '</span></span>';
             $wrapperClass = 'flex items-center space-x-6 px-6 shrink-0';
             if (!empty($a['redirect_url'])): ?>
-                <a href="<?= htmlspecialchars($a['redirect_url']) ?>" target="_blank" rel="noopener noreferrer" class="<?= $wrapperClass ?>"><?= $text ?></a>
+                <a href="<?= htmlspecialchars($a['redirect_url']) ?>" target="_blank" rel="noopener noreferrer" class="<?= $wrapperClass ?>">
+                    <span class="flex items-center space-x-2 whitespace-nowrap">
+                        <span><?= $emoji ?></span>
+                        <span class="font-semibold"><?= htmlspecialchars($a['title']) ?></span>
+                        <span class="opacity-80">—</span>
+                        <span><?= htmlspecialchars($a['message']) ?></span>
+                    </span>
+                </a>
             <?php else: ?>
-                <span class="<?= $wrapperClass ?>"><?= $text ?></span>
+                <span class="<?= $wrapperClass ?>">
+                    <span class="flex items-center space-x-2 whitespace-nowrap">
+                        <span><?= $emoji ?></span>
+                        <span class="font-semibold"><?= htmlspecialchars($a['title']) ?></span>
+                        <span class="opacity-80">—</span>
+                        <span><?= htmlspecialchars($a['message']) ?></span>
+                    </span>
+                </span>
             <?php endif; ?>
         <?php endforeach; ?>
     </div>

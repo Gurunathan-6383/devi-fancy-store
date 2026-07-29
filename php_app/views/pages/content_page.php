@@ -24,9 +24,14 @@ $meta = $PAGE_MAP[$slug] ?? ['icon' => '📄', 'accent' => 'from-gray-500 to-gra
 </div>
 <?php elseif ($page): ?>
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Breadcrumb -->
     <div class="bg-gradient-to-r <?= $meta['accent'] ?> py-12 md:py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6">
-            <a href="<?= $baseUrl ?>/" class="text-white/70 hover:text-white text-sm mb-4 inline-block transition-colors">&larr; Home</a>
+            <nav class="flex items-center gap-2 text-white/70 text-sm mb-4">
+                <a href="<?= $baseUrl ?>/" class="hover:text-white transition-colors">Home</a>
+                <span>/</span>
+                <span class="text-white"><?= htmlspecialchars($page['title'] ?? '') ?></span>
+            </nav>
             <h1 class="text-3xl md:text-4xl font-heading font-bold text-white flex items-center gap-3">
                 <span class="text-4xl"><?= $meta['icon'] ?></span>
                 <?= htmlspecialchars($page['title'] ?? '') ?>
