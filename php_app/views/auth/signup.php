@@ -27,7 +27,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .bg-mesh { background-image: radial-gradient(at 40% 20%, rgba(224,74,111,0.12) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(124,58,237,0.08) 0px, transparent 50%), radial-gradient(at 0% 50%, rgba(255,200,0,0.06) 0px, transparent 50%); }
-        .input-field { width:100%; padding:0.875rem 1.25rem; border:2px solid #e5e7eb; border-radius:0.75rem; outline:none; transition:all 0.3s; background:#f9fafb; }
+        .input-field { width:100%; border:2px solid #e5e7eb; border-radius:0.75rem; outline:none; transition:all 0.3s; background:#f9fafb; }
         .input-field:focus { border-color:#e04a6f; background:white; }
         @keyframes scale-in { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
         .animate-scale-in { animation: scale-in 0.4s ease-out; }
@@ -55,7 +55,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Full Name *</label>
                         <div class="relative">
                             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                            <input type="text" name="name" class="input-field pl-11" placeholder="Your full name" required />
+                            <input type="text" name="name" class="input-field py-3.5 pl-11 pr-5" placeholder="Your full name" required />
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Email *</label>
                         <div class="relative">
                             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <input type="email" name="email" class="input-field pl-11" placeholder="your@email.com" required />
+                            <input type="email" name="email" class="input-field py-3.5 pl-11 pr-5" placeholder="your@email.com" required />
                         </div>
                     </div>
 
@@ -71,7 +71,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Phone (optional)</label>
                         <div class="relative">
                             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                            <input type="tel" name="phone" class="input-field pl-11" placeholder="Your phone number" />
+                            <input type="tel" name="phone" class="input-field py-3.5 pl-11 pr-5" placeholder="Your phone number" />
                         </div>
                     </div>
 
@@ -79,7 +79,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Password *</label>
                         <div class="relative">
                             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            <input type="password" name="password" class="input-field pl-11 pr-11" placeholder="At least 6 characters" required />
+                            <input type="password" name="password" class="input-field py-3.5 pl-11 pr-12" placeholder="At least 6 characters" required />
                             <button type="button" onclick="togglePasswordVisibility(this)" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </button>
@@ -90,7 +90,7 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password *</label>
                         <div class="relative">
                             <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            <input type="password" name="confirm" class="input-field pl-11" placeholder="Re-enter password" required />
+                            <input type="password" name="confirm" class="input-field py-3.5 pl-11 pr-5" placeholder="Re-enter password" required />
                         </div>
                     </div>
 
@@ -147,7 +147,8 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(res) {
-            if (res.success) {
+            if (res.success && res.data && res.data.token) {
+                localStorage.setItem('customerToken', res.data.token);
                 window.location.href = '<?= $baseUrl ?>/';
             } else {
                 alert(res.message || 'Failed to create account');

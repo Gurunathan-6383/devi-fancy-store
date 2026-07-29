@@ -85,7 +85,8 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(res) {
-            if (res.success) {
+            if (res.success && res.data && res.data.token) {
+                localStorage.setItem('adminToken', res.data.token);
                 window.location.href = '<?= $baseUrl ?>/admin';
             } else {
                 alert(res.message || 'Invalid credentials');

@@ -1,6 +1,6 @@
 // ── Modal ──
 function openModal(id) {
-  const modal = document.getElementById(id);
+  var modal = document.getElementById(id);
   if (modal) {
     modal.classList.add('show');
     modal.style.display = 'flex';
@@ -9,7 +9,7 @@ function openModal(id) {
 }
 
 function closeModal(id) {
-  const modal = document.getElementById(id);
+  var modal = document.getElementById(id);
   if (modal) {
     modal.classList.remove('show');
     modal.style.display = 'none';
@@ -17,386 +17,319 @@ function closeModal(id) {
   }
 }
 
-function initModalCloseButtons() {
-  document.querySelectorAll('[data-close-modal]').forEach(function (el) {
-    el.addEventListener('click', function () {
-      const modal = el.closest('.modal');
-      if (modal) closeModal(modal.id);
-    });
-  });
-
-  document.querySelectorAll('.modal').forEach(function (modal) {
-    modal.addEventListener('click', function (e) {
-      if (e.target === modal) closeModal(modal.id);
-    });
-  });
-}
-
-// ── Helpers ──
-function getFormData(form) {
-  const fd = new FormData(form);
-  const obj = {};
-  fd.forEach(function (val, key) {
-    obj[key] = val;
-  });
-  return obj;
-}
-
-function getFormFileData(form) {
-  return new FormData(form);
-}
-
-function getCheckboxValue(selector, fallback) {
-  const el = document.querySelector(selector);
-  if (!el) return fallback;
-  return el.checked;
-}
-
-function getSelectedValue(selector) {
-  const el = document.querySelector(selector);
-  return el ? el.value : '';
-}
-
-function setFormValues(form, data) {
-  if (!form || !data) return;
-  Object.keys(data).forEach(function (key) {
-    const input = form.querySelector('[name="' + key + '"]');
-    if (!input) return;
-    if (input.type === 'checkbox' || input.type === 'radio') {
-      input.checked = !!data[key];
-    } else {
-      input.value = data[key] != null ? data[key] : '';
-    }
-  });
-}
-
-function renderTableBody(tbodyId, rows, columns) {
-  const tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-  if (!rows || rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="' + columns.length + '" class="text-center text-muted py-4">No records found.</td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map(function (row) {
-    return '<tr>' + columns.map(function (col) {
-      let val = row[col.key];
-      if (col.render) {
-        val = col.render(val, row);
-      } else if (val == null) {
-        val = '-';
-      }
-      return '<td>' + val + '</td>';
-    }).join('') + '</tr>';
-  }).join('');
-}
-
-function confirmDelete(message) {
-  return confirm(message || 'Are you sure you want to delete this?');
+function confirmDelete(msg) {
+  return confirm(msg || 'Are you sure you want to delete this?');
 }
 
 // ── Categories ──
 async function loadCategories() {
   try {
-    const res = await api.get('/categories');
-    const categories = res.categories || res || [];
-    renderTableBody('categories-tbody', categories, [
-      { key: 'id' },
-      { key: 'name' },
-      { key: 'slug' },
-      { key: 'is_active', render: function (v) { return v ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Hidden</span>'; } },
-      { key: 'sort_order' },
-      { key: 'id', render: function (v, row) {
-        return '<div class="d-flex gap-1">' +
-          '<button class="btn btn-sm btn-primary" onclick="editCategory(' + v + ')"><i class="fa fa-edit"></i></button>' +
-          '<button class="btn btn-sm btn-warning" onclick="toggleCategoryVisibility(' + v + ',' + (row.is_active ? 'false' : 'true') + ')"><i class="fa fa-eye' + (row.is_active ? '-slash' : '') + '"></i></button>' +
-          '<button class="btn btn-sm btn-danger" onclick="deleteCategory(' + v + ')"><i class="fa fa-trash"></i></button>' +
-          '</div>';
-      }}
-    ]);
+    var res = await api.get('/categories');
+    var categories = res.data || [];
+    var tbody = document.getElementById('categories-tbody');
+    if (!tbody) return;
+    if (!categories.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-12">No categories found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = categories.map(function(c) {
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-6 py-4"><img src="' + (c.image || 'https://via.placeholder.com/48') + '" class="w-12 h-12 rounded-lg object-cover" /></td>' +
+        '<td class="px-6 py-4 font-medium text-gray-900 dark:text-white">' + escapeHtml(c.name) + '</td>' +
+        '<td class="px-6 py-4 text-gray-500 text-sm">' + escapeHtml(c.slug) + '</td>' +
+        '<td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (c.is_hidden ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700') + '">' + (c.is_hidden ? 'Hidden' : 'Visible') + '</span></td>' +
+        '<td class="px-6 py-4 text-right">' +
+          '<div class="flex items-center justify-end space-x-2">' +
+            '<button onclick="toggleCategoryVisibility(' + c.id + ')" class="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg" title="Toggle">' + (c.is_hidden ? '&#128065;&#8288;' : '&#128064;') + '</button>' +
+            '<button onclick="editCategory(' + c.id + ')" class="p-2 text-gray-500 hover:text-secondary-600 hover:bg-gray-100 rounded-lg" title="Edit">&#9998;</button>' +
+            '<button onclick="deleteCategory(' + c.id + ')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg" title="Delete">&#128465;</button>' +
+          '</div>' +
+        '</td></tr>';
+    }).join('');
     window._categoriesData = categories;
   } catch (e) {
     showToast('Failed to load categories', 'error');
   }
 }
 
-async function createCategory() {
-  const form = document.getElementById('category-form');
+async function saveCategory() {
+  var form = document.getElementById('category-form');
   if (!form) return;
-  const data = getFormData(form);
-
+  var fd = new FormData(form);
+  var editId = fd.get('id');
   try {
-    await api.post('/categories', data);
-    showToast('Category created', 'success');
+    if (editId) {
+      fd.delete('id');
+      await api.upload('/categories/' + editId + '?_method=PUT', fd);
+      showToast('Category updated!');
+    } else {
+      await api.upload('/categories', fd);
+      showToast('Category created!');
+    }
     closeModal('category-modal');
     form.reset();
     loadCategories();
   } catch (e) {
-    showToast(e.message || 'Failed to create category', 'error');
+    showToast(e.message || 'Failed to save category', 'error');
   }
 }
 
-async function editCategory(id) {
-  const cat = (window._categoriesData || []).find(function (c) { return c.id === id; });
+function editCategory(id) {
+  var cat = (window._categoriesData || []).find(function(c) { return c.id === id; });
   if (!cat) return;
-  const form = document.getElementById('category-form');
-  setFormValues(form, cat);
-  openModal('category-modal');
-}
-
-async function updateCategory() {
-  const form = document.getElementById('category-form');
+  var form = document.getElementById('category-form');
   if (!form) return;
-  const data = getFormData(form);
-  const id = data.id;
-  if (!id) return;
-
-  try {
-    await api.put('/categories/' + id, data);
-    showToast('Category updated', 'success');
-    closeModal('category-modal');
-    form.reset();
-    loadCategories();
-  } catch (e) {
-    showToast(e.message || 'Failed to update category', 'error');
-  }
+  form.querySelector('[name="name"]').value = cat.name || '';
+  var hidden = form.querySelector('[name="id"]');
+  if (hidden) hidden.value = cat.id;
+  else { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'id'; hidden.value = cat.id; form.appendChild(hidden); }
+  openModal('category-modal');
 }
 
 async function deleteCategory(id) {
   if (!confirmDelete('Delete this category?')) return;
   try {
     await api.delete('/categories/' + id);
-    showToast('Category deleted', 'success');
+    showToast('Category deleted!');
     loadCategories();
   } catch (e) {
-    showToast(e.message || 'Failed to delete category', 'error');
+    showToast(e.message || 'Failed to delete', 'error');
   }
 }
 
-async function toggleCategoryVisibility(id, currentActive) {
+async function toggleCategoryVisibility(id) {
   try {
-    await api.put('/categories/' + id, { is_active: currentActive === 'true' || currentActive === true ? false : true });
-    showToast('Visibility updated', 'success');
+    await api.patch('/categories/' + id + '/toggle-visibility');
+    showToast('Visibility toggled!');
     loadCategories();
   } catch (e) {
-    showToast(e.message || 'Failed to update visibility', 'error');
+    showToast(e.message || 'Failed to toggle', 'error');
   }
 }
 
 // ── Products ──
-async function loadProducts(page) {
-  page = page || 1;
+async function loadProducts() {
   try {
-    const res = await api.get('/products?page=' + page + '&limit=20');
-    const products = res.products || res.data || res || [];
-    renderTableBody('products-tbody', products, [
-      { key: 'id' },
-      { key: 'name' },
-      { key: 'category', render: function (v) { return v && v.name ? v.name : (v || '-'); } },
-      { key: 'price', render: function (v) { return '&#8377;' + (v || 0); } },
-      { key: 'stock' },
-      { key: 'is_active', render: function (v) { return v ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Hidden</span>'; } },
-      { key: 'id', render: function (v, row) {
-        return '<div class="d-flex gap-1">' +
-          '<button class="btn btn-sm btn-primary" onclick="editProduct(' + v + ')"><i class="fa fa-edit"></i></button>' +
-          '<button class="btn btn-sm btn-danger" onclick="deleteProduct(' + v + ')"><i class="fa fa-trash"></i></button>' +
-          '</div>';
-      }}
-    ]);
+    var res = await api.get('/products');
+    var products = res.data || [];
+    var tbody = document.getElementById('products-tbody');
+    if (!tbody) return;
+    if (!products.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-12">No products yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = products.map(function(p) {
+      var img = (p.images && p.images[0]) || 'https://via.placeholder.com/48';
+      var price = p.offer_price || p.price;
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-4 py-4"><img src="' + img + '" class="w-12 h-12 rounded-lg object-cover" /></td>' +
+        '<td class="px-4 py-4"><span class="font-medium text-gray-900 dark:text-white">' + escapeHtml(p.name) + '</span>' + (p.is_featured ? ' &#9733;' : '') + '</td>' +
+        '<td class="px-4 py-4 text-sm text-gray-500">' + escapeHtml(p.category_name || '-') + '</td>' +
+        '<td class="px-4 py-4"><span class="font-semibold">&#8377;' + price + '</span>' + (p.offer_price ? '<span class="text-xs text-gray-400 line-through ml-1">&#8377;' + p.price + '</span>' : '') + '</td>' +
+        '<td class="px-4 py-4">' + p.stock + '</td>' +
+        '<td class="px-4 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500') + '">' + p.status + '</span></td>' +
+        '<td class="px-4 py-4 text-right"><div class="flex items-center justify-end space-x-2">' +
+          '<button onclick="editProduct(' + p.id + ')" class="p-2 text-gray-500 hover:text-secondary-600 hover:bg-gray-100 rounded-lg">&#9998;</button>' +
+          '<button onclick="deleteProduct(' + p.id + ')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg">&#128465;</button>' +
+        '</div></td></tr>';
+    }).join('');
     window._productsData = products;
   } catch (e) {
     showToast('Failed to load products', 'error');
   }
 }
 
-async function createProduct() {
-  const form = document.getElementById('product-form');
+async function saveProduct() {
+  var form = document.getElementById('product-form');
   if (!form) return;
-  const fd = getFormFileData(form);
-
+  var fd = new FormData(form);
+  var editId = fd.get('id');
   try {
-    await api.upload('/products', fd);
-    showToast('Product created', 'success');
+    if (editId) {
+      fd.delete('id');
+      await api.upload('/products/' + editId + '?_method=PUT', fd);
+      showToast('Product updated!');
+    } else {
+      await api.upload('/products', fd);
+      showToast('Product created!');
+    }
     closeModal('product-modal');
     form.reset();
     loadProducts();
   } catch (e) {
-    showToast(e.message || 'Failed to create product', 'error');
+    showToast(e.message || 'Failed to save product', 'error');
   }
 }
 
-async function editProduct(id) {
-  const prod = (window._productsData || []).find(function (p) { return p.id === id; });
+function editProduct(id) {
+  var prod = (window._productsData || []).find(function(p) { return p.id === id; });
   if (!prod) return;
-  const form = document.getElementById('product-form');
-  setFormValues(form, prod);
-  openModal('product-modal');
-}
-
-async function updateProduct() {
-  const form = document.getElementById('product-form');
+  var form = document.getElementById('product-form');
   if (!form) return;
-  const fd = getFormFileData(form);
-  const id = fd.get('id');
-  if (!id) return;
-  fd.delete('id');
-
-  try {
-    await api.upload('/products/' + id + '?_method=PUT', fd);
-    showToast('Product updated', 'success');
-    closeModal('product-modal');
-    form.reset();
-    loadProducts();
-  } catch (e) {
-    showToast(e.message || 'Failed to update product', 'error');
-  }
+  var fields = ['name', 'category_id', 'description', 'specifications', 'price', 'offer_price', 'stock', 'status'];
+  fields.forEach(function(f) {
+    var el = form.querySelector('[name="' + f + '"]');
+    if (el) el.value = prod[f] != null ? prod[f] : '';
+  });
+  var feat = form.querySelector('[name="is_featured"]');
+  if (feat) feat.checked = !!prod.is_featured;
+  var hidden = form.querySelector('[name="id"]');
+  if (hidden) hidden.value = prod.id;
+  else { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'id'; hidden.value = prod.id; form.appendChild(hidden); }
+  openModal('product-modal');
 }
 
 async function deleteProduct(id) {
   if (!confirmDelete('Delete this product?')) return;
   try {
     await api.delete('/products/' + id);
-    showToast('Product deleted', 'success');
+    showToast('Product deleted!');
     loadProducts();
   } catch (e) {
-    showToast(e.message || 'Failed to delete product', 'error');
+    showToast(e.message || 'Failed to delete', 'error');
   }
 }
 
 // ── Catalogues ──
 async function loadCatalogues() {
   try {
-    const res = await api.get('/catalogues');
-    const catalogues = res.catalogues || res || [];
-    renderTableBody('catalogues-tbody', catalogues, [
-      { key: 'id' },
-      { key: 'title' },
-      { key: 'description', render: function (v) { return v ? v.substring(0, 60) + (v.length > 60 ? '...' : '') : '-'; } },
-      { key: 'is_published', render: function (v) { return v ? '<span class="badge badge-success">Published</span>' : '<span class="badge badge-secondary">Draft</span>'; } },
-      { key: 'id', render: function (v, row) {
-        return '<div class="d-flex gap-1">' +
-          '<button class="btn btn-sm btn-primary" onclick="editCatalogue(' + v + ')"><i class="fa fa-edit"></i></button>' +
-          '<button class="btn btn-sm btn-warning" onclick="toggleCataloguePublish(' + v + ',' + (row.is_published ? 'false' : 'true') + ')"><i class="fa fa-eye' + (row.is_published ? '-slash' : '') + '"></i></button>' +
-          '<button class="btn btn-sm btn-danger" onclick="deleteCatalogue(' + v + ')"><i class="fa fa-trash"></i></button>' +
-          '</div>';
-      }}
-    ]);
+    var res = await api.get('/catalogues');
+    var catalogues = res.data || [];
+    var container = document.getElementById('catalogues-grid');
+    if (!container) return;
+    if (!catalogues.length) {
+      container.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No catalogues yet.</div>';
+      return;
+    }
+    container.innerHTML = catalogues.map(function(c) {
+      return '<div class="card p-5">' +
+        (c.image ? '<img src="' + c.image + '" class="w-full h-40 object-cover rounded-lg mb-4" />' : '') +
+        '<h3 class="text-lg font-semibold text-gray-900 dark:text-white">' + escapeHtml(c.title) + '</h3>' +
+        (c.description ? '<p class="text-sm text-gray-500 mt-1">' + escapeHtml(c.description) + '</p>' : '') +
+        '<span class="inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ' + (c.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500') + '">' + (c.is_published ? 'Published' : 'Draft') + '</span>' +
+        '<div class="flex items-center space-x-2 mt-4 pt-3 border-t">' +
+          '<button onclick="toggleCataloguePublish(' + c.id + ')" class="p-2 text-gray-500 hover:text-primary-600 rounded-lg hover:bg-gray-100" title="Toggle Publish">' + (c.is_published ? '&#128065;&#8288;' : '&#128064;') + '</button>' +
+          '<button onclick="editCatalogue(' + c.id + ')" class="p-2 text-gray-500 hover:text-secondary-600 rounded-lg hover:bg-gray-100">&#9998;</button>' +
+          '<button onclick="deleteCatalogue(' + c.id + ')" class="p-2 text-gray-500 hover:text-red-600 rounded-lg hover:bg-gray-100">&#128465;</button>' +
+        '</div></div>';
+    }).join('');
     window._cataloguesData = catalogues;
   } catch (e) {
     showToast('Failed to load catalogues', 'error');
   }
 }
 
-async function createCatalogue() {
-  const form = document.getElementById('catalogue-form');
+async function saveCatalogue() {
+  var form = document.getElementById('catalogue-form');
   if (!form) return;
-  const fd = getFormFileData(form);
-
+  var fd = new FormData(form);
+  var editId = fd.get('id');
   try {
-    await api.upload('/catalogues', fd);
-    showToast('Catalogue created', 'success');
+    if (editId) {
+      fd.delete('id');
+      await api.upload('/catalogues/' + editId + '?_method=PUT', fd);
+      showToast('Catalogue updated!');
+    } else {
+      await api.upload('/catalogues', fd);
+      showToast('Catalogue created!');
+    }
     closeModal('catalogue-modal');
     form.reset();
     loadCatalogues();
   } catch (e) {
-    showToast(e.message || 'Failed to create catalogue', 'error');
+    showToast(e.message || 'Failed to save catalogue', 'error');
   }
 }
 
-async function editCatalogue(id) {
-  const cat = (window._cataloguesData || []).find(function (c) { return c.id === id; });
+function editCatalogue(id) {
+  var cat = (window._cataloguesData || []).find(function(c) { return c.id === id; });
   if (!cat) return;
-  const form = document.getElementById('catalogue-form');
-  setFormValues(form, cat);
-  openModal('catalogue-modal');
-}
-
-async function updateCatalogue() {
-  const form = document.getElementById('catalogue-form');
+  var form = document.getElementById('catalogue-form');
   if (!form) return;
-  const fd = getFormFileData(form);
-  const id = fd.get('id');
-  if (!id) return;
-  fd.delete('id');
-
-  try {
-    await api.upload('/catalogues/' + id + '?_method=PUT', fd);
-    showToast('Catalogue updated', 'success');
-    closeModal('catalogue-modal');
-    form.reset();
-    loadCatalogues();
-  } catch (e) {
-    showToast(e.message || 'Failed to update catalogue', 'error');
-  }
+  form.querySelector('[name="title"]').value = cat.title || '';
+  var desc = form.querySelector('[name="description"]');
+  if (desc) desc.value = cat.description || '';
+  var hidden = form.querySelector('[name="id"]');
+  if (hidden) hidden.value = cat.id;
+  else { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'id'; hidden.value = cat.id; form.appendChild(hidden); }
+  openModal('catalogue-modal');
 }
 
 async function deleteCatalogue(id) {
   if (!confirmDelete('Delete this catalogue?')) return;
   try {
     await api.delete('/catalogues/' + id);
-    showToast('Catalogue deleted', 'success');
+    showToast('Catalogue deleted!');
     loadCatalogues();
   } catch (e) {
-    showToast(e.message || 'Failed to delete catalogue', 'error');
+    showToast(e.message || 'Failed to delete', 'error');
   }
 }
 
-async function toggleCataloguePublish(id, current) {
+async function toggleCataloguePublish(id) {
   try {
-    await api.put('/catalogues/' + id, { is_published: current === 'true' || current === true ? false : true });
-    showToast('Publish status updated', 'success');
+    await api.patch('/catalogues/' + id + '/toggle-publish');
+    showToast('Publish status toggled!');
     loadCatalogues();
   } catch (e) {
-    showToast(e.message || 'Failed to update status', 'error');
+    showToast(e.message || 'Failed to toggle', 'error');
   }
 }
 
 // ── Orders ──
-async function loadOrders(filters) {
-  let qs = '';
-  if (filters) {
-    const params = new URLSearchParams();
-    if (filters.status) params.set('status', filters.status);
-    if (filters.page) params.set('page', filters.page);
-    qs = '?' + params.toString();
-  }
+async function loadOrders() {
   try {
-    const res = await api.get('/orders' + qs);
-    const orders = res.orders || res.data || res || [];
-    renderTableBody('orders-tbody', orders, [
-      { key: 'id', render: function (v) { return '#' + v; } },
-      { key: 'customer', render: function (v) { return v && v.name ? v.name : (v && v.email ? v.email : '-'); } },
-      { key: 'total', render: function (v) { return '&#8377;' + (v || 0); } },
-      { key: 'status', render: function (v) {
-        var cls = 'badge-secondary';
-        if (v === 'delivered') cls = 'badge-success';
-        else if (v === 'cancelled') cls = 'badge-danger';
-        else if (v === 'shipped') cls = 'badge-info';
-        else if (v === 'processing') cls = 'badge-warning';
-        return '<span class="badge ' + cls + '">' + (v || '-') + '</span>';
-      }},
-      { key: 'created_at', render: function (v) { return v ? new Date(v).toLocaleDateString() : '-'; } },
-      { key: 'id', render: function (v) {
-        return '<a href="/admin/orders/' + v + '" class="btn btn-sm btn-primary"><i class="fa fa-eye"></i> View</a>';
-      }}
-    ]);
-    window._ordersData = orders;
+    var res = await api.get('/orders');
+    var orders = res.data || [];
+    var tbody = document.getElementById('orders-tbody');
+    if (!tbody) return;
+    if (!orders.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-12">No orders yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(function(o) {
+      var items = o.items;
+      if (typeof items === 'string') { try { items = JSON.parse(items); } catch(e) { items = []; } }
+      var productNames = Array.isArray(items) ? items.map(function(i) { return i.name || ''; }).join(', ') : '';
+      var qty = Array.isArray(items) ? items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0) : 0;
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-5 py-4 font-semibold text-gray-900 dark:text-white">' + escapeHtml(o.name) + '</td>' +
+        '<td class="px-5 py-4 text-gray-600 font-mono text-sm">' + escapeHtml(o.phone) + '</td>' +
+        '<td class="px-5 py-4 text-gray-600 max-w-[200px] truncate text-sm" title="' + escapeHtml(o.address) + '">' + escapeHtml(o.address) + '</td>' +
+        '<td class="px-5 py-4 text-gray-600 max-w-[200px] truncate text-sm" title="' + escapeHtml(productNames) + '">' + escapeHtml(productNames) + '</td>' +
+        '<td class="px-5 py-4"><span class="bg-primary-100 text-primary-700 font-bold text-xs px-2.5 py-1 rounded-full">' + qty + '</span></td>' +
+        '<td class="px-5 py-4 font-extrabold text-gray-900 dark:text-white">' + escapeHtml(o.total) + '</td>' +
+        '<td class="px-5 py-4 text-sm text-gray-500">' + escapeHtml(o.order_date || '') + '</td></tr>';
+    }).join('');
   } catch (e) {
     showToast('Failed to load orders', 'error');
   }
 }
 
-// ── Customers ──
+// ── Customers (derived from orders) ──
 async function loadCustomers() {
   try {
-    const res = await api.get('/customers');
-    const customers = res.customers || res.data || res || [];
-    renderTableBody('customers-tbody', customers, [
-      { key: 'id' },
-      { key: 'name' },
-      { key: 'email' },
-      { key: 'phone' },
-      { key: 'created_at', render: function (v) { return v ? new Date(v).toLocaleDateString() : '-'; } }
-    ]);
+    var res = await api.get('/orders');
+    var orders = res.data || [];
+    var map = {};
+    orders.forEach(function(o) {
+      if (!map[o.phone]) map[o.phone] = { name: o.name, phone: o.phone, address: o.address, orders: 0 };
+      map[o.phone].orders++;
+    });
+    var customers = Object.values(map);
+    var tbody = document.getElementById('customers-tbody');
+    if (!tbody) return;
+    if (!customers.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-12">No customers yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = customers.map(function(c) {
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-6 py-4 font-medium text-gray-900 dark:text-white">' + escapeHtml(c.name) + '</td>' +
+        '<td class="px-6 py-4 text-gray-600">' + escapeHtml(c.phone) + '</td>' +
+        '<td class="px-6 py-4 text-gray-600 max-w-[250px] truncate">' + escapeHtml(c.address) + '</td>' +
+        '<td class="px-6 py-4"><span class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">' + c.orders + '</span></td></tr>';
+    }).join('');
   } catch (e) {
     showToast('Failed to load customers', 'error');
   }
@@ -405,196 +338,193 @@ async function loadCustomers() {
 // ── Announcements ──
 async function loadAnnouncements() {
   try {
-    const res = await api.get('/announcements');
-    const list = res.announcements || res || [];
-    renderTableBody('announcements-tbody', list, [
-      { key: 'id' },
-      { key: 'text', render: function (v) { return v ? v.substring(0, 80) + (v.length > 80 ? '...' : '') : '-'; } },
-      { key: 'is_active', render: function (v) { return v ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>'; } },
-      { key: 'id', render: function (v, row) {
-        return '<div class="d-flex gap-1">' +
-          '<button class="btn btn-sm btn-primary" onclick="editAnnouncement(' + v + ')"><i class="fa fa-edit"></i></button>' +
-          '<button class="btn btn-sm btn-warning" onclick="toggleAnnouncementStatus(' + v + ',' + (row.is_active ? 'false' : 'true') + ')"><i class="fa fa-eye' + (row.is_active ? '-slash' : '') + '"></i></button>' +
-          '<button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(' + v + ')"><i class="fa fa-trash"></i></button>' +
-          '</div>';
-      }}
-    ]);
+    var res = await api.get('/announcements');
+    var list = res.data || [];
+    var tbody = document.getElementById('announcements-tbody');
+    if (!tbody) return;
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-12">No announcements yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(function(a) {
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-5 py-3"><div class="px-3 py-1.5 rounded-full text-xs font-semibold" style="background:' + (a.bg_color || '#e04a6f') + ';color:' + (a.text_color || '#fff') + '">' + escapeHtml(a.title) + '</div></td>' +
+        '<td class="px-5 py-4 font-medium text-gray-900 dark:text-white">' + escapeHtml(a.title) + '</td>' +
+        '<td class="px-5 py-4 text-sm text-gray-500">' + escapeHtml(a.type || 'general') + '</td>' +
+        '<td class="px-5 py-4 text-sm">' + (a.priority || 0) + '</td>' +
+        '<td class="px-5 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (a.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500') + '">' + (a.status || 'active') + '</span></td>' +
+        '<td class="px-5 py-4 text-sm text-gray-500">' + (a.start_date || 'Always') + '</td>' +
+        '<td class="px-5 py-4 text-right"><div class="flex items-center justify-end space-x-2">' +
+          '<button onclick="editAnnouncement(' + a.id + ')" class="p-2 text-gray-500 hover:text-secondary-600 hover:bg-gray-100 rounded-lg">&#9998;</button>' +
+          '<button onclick="deleteAnnouncement(' + a.id + ')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg">&#128465;</button>' +
+        '</div></td></tr>';
+    }).join('');
     window._announcementsData = list;
   } catch (e) {
     showToast('Failed to load announcements', 'error');
   }
 }
 
-async function createAnnouncement() {
-  const form = document.getElementById('announcement-form');
+async function saveAnnouncement() {
+  var form = document.getElementById('announcement-form');
   if (!form) return;
-  const data = getFormData(form);
-  data.is_active = form.querySelector('[name="is_active"]') ? form.querySelector('[name="is_active"]').checked : true;
-
+  var data = {};
+  new FormData(form).forEach(function(v, k) { data[k] = v; });
+  var editId = data.id;
+  delete data.id;
   try {
-    await api.post('/announcements', data);
-    showToast('Announcement created', 'success');
+    if (editId) {
+      await api.put('/announcements/' + editId, data);
+      showToast('Announcement updated!');
+    } else {
+      await api.post('/announcements', data);
+      showToast('Announcement created!');
+    }
     closeModal('announcement-modal');
     form.reset();
     loadAnnouncements();
   } catch (e) {
-    showToast(e.message || 'Failed to create announcement', 'error');
+    showToast(e.message || 'Failed to save announcement', 'error');
   }
 }
 
-async function editAnnouncement(id) {
-  const ann = (window._announcementsData || []).find(function (a) { return a.id === id; });
+function editAnnouncement(id) {
+  var ann = (window._announcementsData || []).find(function(a) { return a.id === id; });
   if (!ann) return;
-  const form = document.getElementById('announcement-form');
-  setFormValues(form, ann);
-  openModal('announcement-modal');
-}
-
-async function updateAnnouncement() {
-  const form = document.getElementById('announcement-form');
+  var form = document.getElementById('announcement-form');
   if (!form) return;
-  const data = getFormData(form);
-  const id = data.id;
-  if (!id) return;
-  data.is_active = form.querySelector('[name="is_active"]') ? form.querySelector('[name="is_active"]').checked : false;
-
-  try {
-    await api.put('/announcements/' + id, data);
-    showToast('Announcement updated', 'success');
-    closeModal('announcement-modal');
-    form.reset();
-    loadAnnouncements();
-  } catch (e) {
-    showToast(e.message || 'Failed to update announcement', 'error');
-  }
+  ['title', 'message', 'type', 'status', 'bg_color', 'text_color', 'priority', 'start_date', 'end_date', 'redirect_url'].forEach(function(f) {
+    var el = form.querySelector('[name="' + f + '"]');
+    if (el) el.value = ann[f] != null ? ann[f] : '';
+  });
+  var hidden = form.querySelector('[name="id"]');
+  if (hidden) hidden.value = ann.id;
+  else { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'id'; hidden.value = ann.id; form.appendChild(hidden); }
+  openModal('announcement-modal');
 }
 
 async function deleteAnnouncement(id) {
   if (!confirmDelete('Delete this announcement?')) return;
   try {
     await api.delete('/announcements/' + id);
-    showToast('Announcement deleted', 'success');
+    showToast('Announcement deleted!');
     loadAnnouncements();
   } catch (e) {
-    showToast(e.message || 'Failed to delete announcement', 'error');
+    showToast(e.message || 'Failed to delete', 'error');
   }
 }
 
-async function toggleAnnouncementStatus(id, current) {
+async function toggleAnnouncementStatus(id) {
   try {
-    await api.put('/announcements/' + id, { is_active: current === 'true' || current === true ? false : true });
-    showToast('Status updated', 'success');
+    await api.patch('/announcements/' + id + '/toggle-status');
+    showToast('Status toggled!');
     loadAnnouncements();
   } catch (e) {
-    showToast(e.message || 'Failed to update status', 'error');
+    showToast(e.message || 'Failed to toggle', 'error');
   }
 }
 
 // ── Content Pages ──
 async function loadContentPages() {
   try {
-    const res = await api.get('/pages');
-    const pages = res.pages || res.data || res || [];
-    renderTableBody('pages-tbody', pages, [
-      { key: 'id' },
-      { key: 'title' },
-      { key: 'slug' },
-      { key: 'id', render: function (v) {
-        return '<div class="d-flex gap-1">' +
-          '<button class="btn btn-sm btn-primary" onclick="editContentPage(' + v + ')"><i class="fa fa-edit"></i></button>' +
-          '<button class="btn btn-sm btn-danger" onclick="deleteContentPage(' + v + ')"><i class="fa fa-trash"></i></button>' +
-          '</div>';
-      }}
-    ]);
+    var res = await api.get('/content-pages');
+    var pages = res.data || [];
+    var tbody = document.getElementById('pages-tbody');
+    if (!tbody) return;
+    if (!pages.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-12">No pages yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = pages.map(function(p) {
+      return '<tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">' +
+        '<td class="px-6 py-4 font-medium text-gray-900 dark:text-white">' + escapeHtml(p.title) + '</td>' +
+        '<td class="px-6 py-4 text-gray-500 text-sm"><code>' + escapeHtml(p.slug) + '</code></td>' +
+        '<td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (p.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500') + '">' + (p.is_active ? 'Active' : 'Inactive') + '</span></td>' +
+        '<td class="px-6 py-4 text-right"><div class="flex items-center justify-end space-x-2">' +
+          '<button onclick="editContentPage(' + p.id + ')" class="p-2 text-gray-500 hover:text-secondary-600 hover:bg-gray-100 rounded-lg">&#9998;</button>' +
+          '<button onclick="deleteContentPage(' + p.id + ')" class="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-lg">&#128465;</button>' +
+        '</div></td></tr>';
+    }).join('');
     window._pagesData = pages;
   } catch (e) {
     showToast('Failed to load pages', 'error');
   }
 }
 
-async function createContentPage() {
-  const form = document.getElementById('page-form');
+async function saveContentPage() {
+  var form = document.getElementById('page-form');
   if (!form) return;
-  const data = getFormData(form);
-
+  var data = {};
+  new FormData(form).forEach(function(v, k) { data[k] = v; });
+  var editId = data.id;
+  delete data.id;
   try {
-    await api.post('/pages', data);
-    showToast('Page created', 'success');
+    if (editId) {
+      await api.put('/content-pages/' + editId, data);
+      showToast('Page updated!');
+    } else {
+      await api.post('/content-pages', data);
+      showToast('Page created!');
+    }
     closeModal('page-modal');
     form.reset();
     loadContentPages();
   } catch (e) {
-    showToast(e.message || 'Failed to create page', 'error');
+    showToast(e.message || 'Failed to save page', 'error');
   }
 }
 
-async function editContentPage(id) {
-  const page = (window._pagesData || []).find(function (p) { return p.id === id; });
+function editContentPage(id) {
+  var page = (window._pagesData || []).find(function(p) { return p.id === id; });
   if (!page) return;
-  const form = document.getElementById('page-form');
-  setFormValues(form, page);
-  openModal('page-modal');
-}
-
-async function updateContentPage() {
-  const form = document.getElementById('page-form');
+  var form = document.getElementById('page-form');
   if (!form) return;
-  const data = getFormData(form);
-  const id = data.id;
-  if (!id) return;
-
-  try {
-    await api.put('/pages/' + id, data);
-    showToast('Page updated', 'success');
-    closeModal('page-modal');
-    form.reset();
-    loadContentPages();
-  } catch (e) {
-    showToast(e.message || 'Failed to update page', 'error');
-  }
+  ['slug', 'title', 'content', 'meta_description'].forEach(function(f) {
+    var el = form.querySelector('[name="' + f + '"]');
+    if (el) el.value = page[f] != null ? page[f] : '';
+  });
+  var active = form.querySelector('[name="is_active"]');
+  if (active) active.checked = !!page.is_active;
+  var hidden = form.querySelector('[name="id"]');
+  if (hidden) hidden.value = page.id;
+  else { hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = 'id'; hidden.value = page.id; form.appendChild(hidden); }
+  openModal('page-modal');
 }
 
 async function deleteContentPage(id) {
   if (!confirmDelete('Delete this page?')) return;
   try {
-    await api.delete('/pages/' + id);
-    showToast('Page deleted', 'success');
+    await api.delete('/content-pages/' + id);
+    showToast('Page deleted!');
     loadContentPages();
   } catch (e) {
-    showToast(e.message || 'Failed to delete page', 'error');
+    showToast(e.message || 'Failed to delete', 'error');
   }
 }
 
 // ── Settings ──
 async function loadSettings() {
   try {
-    const res = await api.get('/settings');
-    const settings = res.settings || res || {};
-    const form = document.getElementById('settings-form');
-    if (form) {
-      Object.keys(settings).forEach(function (key) {
-        const input = form.querySelector('[name="' + key + '"]');
-        if (!input) return;
-        if (input.type === 'checkbox') {
-          input.checked = !!settings[key];
-        } else {
-          input.value = settings[key] != null ? settings[key] : '';
-        }
-      });
-    }
+    var res = await api.get('/settings');
+    var settings = res.data || {};
+    var form = document.getElementById('settings-form');
+    if (!form) return;
+    Object.keys(settings).forEach(function(key) {
+      var input = form.querySelector('[name="' + key + '"]');
+      if (input) input.value = settings[key] != null ? settings[key] : '';
+    });
   } catch (e) {
     showToast('Failed to load settings', 'error');
   }
 }
 
 async function saveSettings() {
-  const form = document.getElementById('settings-form');
+  var form = document.getElementById('settings-form');
   if (!form) return;
-  const data = getFormData(form);
-
+  var fd = new FormData(form);
   try {
-    await api.put('/settings', data);
-    showToast('Settings saved', 'success');
+    await api.upload('/settings?_method=PUT', fd);
+    showToast('Settings saved!');
   } catch (e) {
     showToast(e.message || 'Failed to save settings', 'error');
   }
@@ -603,50 +533,37 @@ async function saveSettings() {
 // ── Dashboard ──
 async function loadDashboard() {
   try {
-    const res = await api.get('/admin/dashboard');
-    const stats = res.stats || res || {};
-    document.querySelectorAll('[data-stat]').forEach(function (el) {
-      const key = el.dataset.stat;
-      if (stats[key] != null) {
-        el.textContent = key === 'revenue' ? '&#8377;' + Number(stats[key]).toLocaleString() : stats[key];
-      }
-    });
-  } catch (e) {
-    showToast('Failed to load dashboard stats', 'error');
-  }
+    var catRes = await api.get('/categories');
+    var prodRes = await api.get('/products');
+    var catCount = (catRes.data || []).length;
+    var prodCount = (prodRes.data || []).length;
+    var el;
+    el = document.getElementById('stat-categories');
+    if (el) el.textContent = catCount;
+    el = document.getElementById('stat-products');
+    if (el) el.textContent = prodCount;
+  } catch (e) {}
+}
+
+// ── Helpers ──
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
 }
 
 // ── Init ──
-document.addEventListener('DOMContentLoaded', function () {
-  initModalCloseButtons();
-
-  document.querySelectorAll('[data-open-modal]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      openModal(el.dataset.openModal);
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-close-modal]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var modal = el.closest('.modal');
+      if (modal) closeModal(modal.id);
     });
   });
-
-  document.querySelectorAll('[data-close-modal]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      closeModal(el.dataset.closeModal || el.closest('.modal').id);
-    });
-  });
-
-  document.querySelectorAll('[data-create]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      var fn = el.dataset.create;
-      if (typeof window[fn] === 'function') window[fn]();
-    });
-  });
-
-  document.querySelectorAll('[data-save]').forEach(function (el) {
-    el.addEventListener('click', function (e) {
-      e.preventDefault();
-      var fn = el.dataset.save;
-      if (typeof window[fn] === 'function') window[fn]();
+  document.querySelectorAll('.modal').forEach(function(modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal(modal.id);
     });
   });
 });
@@ -654,34 +571,29 @@ document.addEventListener('DOMContentLoaded', function () {
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.loadCategories = loadCategories;
-window.createCategory = createCategory;
+window.saveCategory = saveCategory;
 window.editCategory = editCategory;
-window.updateCategory = updateCategory;
 window.deleteCategory = deleteCategory;
 window.toggleCategoryVisibility = toggleCategoryVisibility;
 window.loadProducts = loadProducts;
-window.createProduct = createProduct;
+window.saveProduct = saveProduct;
 window.editProduct = editProduct;
-window.updateProduct = updateProduct;
 window.deleteProduct = deleteProduct;
 window.loadCatalogues = loadCatalogues;
-window.createCatalogue = createCatalogue;
+window.saveCatalogue = saveCatalogue;
 window.editCatalogue = editCatalogue;
-window.updateCatalogue = updateCatalogue;
 window.deleteCatalogue = deleteCatalogue;
 window.toggleCataloguePublish = toggleCataloguePublish;
 window.loadOrders = loadOrders;
 window.loadCustomers = loadCustomers;
 window.loadAnnouncements = loadAnnouncements;
-window.createAnnouncement = createAnnouncement;
+window.saveAnnouncement = saveAnnouncement;
 window.editAnnouncement = editAnnouncement;
-window.updateAnnouncement = updateAnnouncement;
 window.deleteAnnouncement = deleteAnnouncement;
 window.toggleAnnouncementStatus = toggleAnnouncementStatus;
 window.loadContentPages = loadContentPages;
-window.createContentPage = createContentPage;
+window.saveContentPage = saveContentPage;
 window.editContentPage = editContentPage;
-window.updateContentPage = updateContentPage;
 window.deleteContentPage = deleteContentPage;
 window.loadSettings = loadSettings;
 window.saveSettings = saveSettings;

@@ -52,8 +52,12 @@ $baseUrl = rtrim(env('APP_URL', ''), '/');
         </div>
         <div class="border-t border-gray-800 mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-sm text-gray-500">&copy; <?= $currentYear ?> Devi Fancy Store. All rights reserved.</p>
-            <div class="flex items-center gap-1 text-sm text-gray-500">
-                Made with <span class="text-primary-500">&hearts;</span> for Devi Fancy Store
+            <div class="flex items-center gap-4 text-sm text-gray-500">
+                <a href="<?= $baseUrl ?>/admin/login" class="hover:text-primary-400 transition-colors">Admin</a>
+                <span>&middot;</span>
+                <div class="flex items-center gap-1">
+                    Made with <span class="text-primary-500">&hearts;</span> for Devi Fancy Store
+                </div>
             </div>
         </div>
     </div>

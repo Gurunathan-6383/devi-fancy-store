@@ -9,7 +9,7 @@ try {
     $db = \App\Core\Database::getInstance();
 
     $password = password_hash('admin@123', PASSWORD_BCRYPT);
-    $db->query("INSERT IGNORE INTO users (email, password) VALUES (?, ?)", ['admin@gmail.com', $password]);
+    $db->query("INSERT INTO users (email, password) VALUES (?, ?) ON DUPLICATE KEY UPDATE password = VALUES(password)", ['admin@gmail.com', $password]);
     echo "Admin user created (email: admin@gmail.com, password: admin@123)\n";
 
     $count = $db->fetch("SELECT COUNT(*) as count FROM categories")->count;
