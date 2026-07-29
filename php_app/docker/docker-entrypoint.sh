@@ -3,11 +3,13 @@ set -e
 
 echo "=== Devi Fancy Store — Deploy ==="
 
-# Only run migration if DB_HOST is provided (Render sets this via database link)
+DB_PORT="${DB_PORT:-3306}"
+
+# Only run migration if DB_HOST is provided
 if [ -n "$DB_HOST" ]; then
-    echo "Waiting for database at $DB_HOST..."
+    echo "Waiting for MySQL at $DB_HOST:$DB_PORT..."
     for i in $(seq 1 30); do
-        if php -r "new PDO('mysql:host=$DB_HOST;charset=utf8mb4', '${DB_USER:-root}', '${DB_PASSWORD:-}');" 2>/dev/null; then
+        if php -r "new PDO('mysql:host=$DB_HOST;port=$DB_PORT;charset=utf8mb4', '${DB_USER:-root}', '${DB_PASSWORD:-}');" 2>/dev/null; then
             echo "Database is ready."
             break
         fi

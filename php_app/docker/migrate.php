@@ -3,21 +3,23 @@
  * Render deployment migration script.
  * Called by docker-entrypoint.sh:  php /var/www/html/docker/migrate.php
  *
- * Reads DB config from environment variables (set by Render).
+ * Reads DB config from environment variables.
  * Creates the database if it doesn't exist, imports schema, runs seed.
  */
 
 $host     = getenv('DB_HOST')     ?: 'localhost';
+$port     = getenv('DB_PORT')     ?: '3306';
 $user     = getenv('DB_USER')     ?: 'root';
 $password = getenv('DB_PASSWORD') ?: '';
 $dbName   = getenv('DB_NAME')     ?: 'devi_fancy_store';
 
 echo "DB host: {$host}\n";
+echo "DB port: {$port}\n";
 echo "DB name: {$dbName}\n";
 
 // Connect without selecting a database
 try {
-    $pdo = new PDO("mysql:host={$host};charset=utf8mb4", $user, $password, [
+    $pdo = new PDO("mysql:host={$host};port={$port};charset=utf8mb4", $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
 } catch (PDOException $e) {
