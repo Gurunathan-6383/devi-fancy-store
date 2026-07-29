@@ -1,15 +1,21 @@
 <?php
 function env($key, $default = null) {
+    $value = getenv($key);
+    if ($value !== false) return $value;
+    if (isset($_ENV[$key])) return $_ENV[$key];
     static $env = null;
     if ($env === null) {
         $env = [];
-        $lines = file_exists(__DIR__ . '/../../.env') ? file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '' || strpos($line, '#') === 0) continue;
-            $parts = explode('=', $line, 2);
-            if (count($parts) === 2) {
-                $env[trim($parts[0])] = trim($parts[1]);
+        $envFile = __DIR__ . '/../../.env';
+        if (file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || $line[0] === '#') continue;
+                $parts = explode('=', $line, 2);
+                if (count($parts) === 2) {
+                    $env[trim($parts[0])] = trim($parts[1], " \t\n\r\0\x0B\"'");
+                }
             }
         }
     }
